@@ -10,7 +10,7 @@ const bconst = {}
 
 const USE_TESTNET = true
 
-if(USE_TESTNET){
+if (USE_TESTNET) {
     bconst.chainId = "0x61"
     bconst.chainName = 'BSC Testnet'
     bconst.chainNetName = 'bnbt'
@@ -18,7 +18,7 @@ if(USE_TESTNET){
     bconst.chainRpcUrl = 'https://data-seed-prebsc-1-s1.binance.org:8545/'
     bconst.chainExplorerUrl = 'https://testnet.bscscan.com'
     bconst.market_address = '0xb8EE32c0fe5C7ec0E400c9c7140Ef278168BD308'
-}else{
+} else {
     // const b_chainId = '0x38'
     // const b_chainName = 'BSC Mainnet'
     // const b_chainNetName = 'bnb'
@@ -52,7 +52,7 @@ async function switch_network() {
                         rpcUrls: [bconst.chainRpcUrl],
                         blockExplorerUrls: [bconst.chainExplorerUrl]
                     }])
-                    console.log('333')
+                console.log('333')
             } catch (err) {
                 // console.log('addError',err)
                 return addError
@@ -106,7 +106,7 @@ async function connect(coin, commit) {
         bsc.pb = new ethers.Contract(pb_address, pb_abi, bsc.signer)
         console.log('pb', bsc.pb)
         console.log('market', bsc.market)
-        if(commit){
+        if (commit) {
             commit("setBaddr", bsc.addr)
         }
         return bsc.addr
