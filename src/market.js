@@ -9,7 +9,11 @@ const bsc = {}
 const bconst = {}
 
 const USE_TESTNET = true
-
+// const b_xaddresses = {
+//     'XCC': b_xcc_address,
+//     'XCH': b_xch_address,
+//     'HDD': b_hdd_address
+// }
 if (USE_TESTNET) {
     bconst.chainId = "0x61"
     bconst.chainName = 'BSC Testnet'
@@ -80,27 +84,17 @@ async function ensure_network() {
     }
 }
 
-async function connect(coin, commit) {
+async function connect(commit) {
     if (typeof window.ethereum !== 'undefined') {
-        bsc.prefix = coin.toLowerCase()
         bsc.provider = new ethers.providers.Web3Provider(window.ethereum, "any")
         const neterr = await ensure_network()
         if (neterr) throw neterr
         await bsc.provider.send("eth_requestAccounts", [])
-        if (coin in b_xaddresses) {
-            bsc.wcoin_address = b_xaddresses[coin]
-        } else {
-            return false
-        }
-        if (coin in coin_types) {
-            bsc.coin_type = coin_types[coin]
-        } else {
-            return false
-        }
         bsc.signer = bsc.provider.getSigner()
         bsc.addr = await bsc.signer.getAddress()
         bsc.market = new ethers.Contract(bconst.market_address, market_abi, bsc.signer)
         const pb_address = await bsc.market.tokenAddress()
+        console.log('pb-addr', pb_address)
         bsc.pb = new ethers.Contract(pb_address, pb_abi, bsc.signer)
         console.log('pb', bsc.pb)
         console.log('market', bsc.market)
@@ -112,18 +106,49 @@ async function connect(coin, commit) {
     return false
 }
 
+async function getMySaleList() {
+    // TODO: show tokens selling by me
+}
+
+async function getUserTokenList(addr) {
+    const cnt = await bsc.pb.balanceOf(addr)
+    console.log('user', addr, 'has', cnt, 'tokens')
+    const list = []
+    for (var i = 0; i < cnt; i++) {
+        const idx = await bsc.pb.tokenOfOwnerByIndex(addr, i)
+        const uri = await bsc.pb.tokenURI(idx)
+        list.push({
+            id: idx.toNumber(),
+            uri: uri
+        })
+    }
+    console.log('token list of', addr, list)
+    return list
+}
+
+async function getSaleList() {
+    return await getUserTokenList(bconst.market_address)
+}
+
+async function getMyTokenList() {
+    return await getUserTokenList(bsc.addr)
+}
+
 async function sendToMarket(id){
     const res = await bsc.pb.safeTransferFrom(bsc.addr, bconst.market_address,id)
     console.log('transfer receipt', res)
 }
 
 async function setSellInfo(id, price, desc){
-    const res = await bsc.pb.onSale(id, ethers.utils.parseEthers(price), desc)
+    const res = await bsc.market.onSale(id, ethers.utils.parseEthers(price), desc)
     console.log('set sell info receipt', res)
 }
 
 export default {
     connect: connect,
     sendToMarket: sendToMarket,
-    setSellInfo: setSellInfo
+    setSellInfo: setSellInfo,
+    getMyTokenList: getMyTokenList,
+    setSellInfo:setSellInfo 
 }
+

@@ -1,6 +1,10 @@
 <template>
   <div id="app">
-    <Connect />
+    <el-row type="flex" justify="center" align="middle">
+      <el-col :span="18">
+        <Connect />
+      </el-col>
+    </el-row>
   </div>
 </template>
 

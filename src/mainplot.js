@@ -8,14 +8,13 @@ import Vuex from 'vuex'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import "../theme/index.css"
-import "./assets/main.css"
-// import './assets/js/chia-utils'
+
 
 import App from './App.vue'
 
 Vue.use(Vuex)
 // Vue.use(LoadScript)
-// Vue.LoadScript("js/chia-utils.js")
+// Vue.loadScript("js/chia-utils.js")
 Vue.use(ElementUI)
 // Vue.use(VueClipboard)
 // Vue.component('pulse-loader', PulseLoader)
@@ -26,35 +25,41 @@ Vue.config.productionTip = false
 
 const store = new Vuex.Store({
     state: {
-        coin: "xch",
+        coin: "XCH",
         baddr: false,
+        free_xins: -1,
         xbalance: -1,
-        userList: [],
-        curNFT: {}
+        xsupply: 0,
+        deposit_addr: false,
+        withdraw_addr: false
     },
     mutations: {
         setBaddr(state, baddr) {
             state.baddr = baddr
         },
-
+        setFreeXins(state, cnt) {
+            state.free_xins = cnt
+        },
+        setDepositAddr(state, addr) {
+            state.deposit_addr = addr
+        },
+        setWithdrawAddr(state, addr) {
+            state.withdraw_addr = addr
+        },
         setXbalance(state, xb) {
             state.xbalance = xb
         },
-
+        setXsupply(state, xs) {
+            state.xsupply = xs
+        },
         setCoin(state, coin) {
             state.coin = coin
-        },
-        setUserList(state, userList) {
-            state.userList = userList
-        },
-        setCurNFT(state, curNFT) {
-            state.curNFT = curNFT
         }
     }
 })
 
 new Vue({
-
+    // i18n,
     render: h => h(App),
     store: store,
 }).$mount('#app')

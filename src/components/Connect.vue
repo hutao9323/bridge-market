@@ -1,48 +1,95 @@
 <template>
-  <div>
-    <el-button round @click="connect" class="connect">
-      connect wallet
-    </el-button>
-  </div>
+  <el-col>
+    <el-col v-if="!baddr" class="user">
+      <el-button round @click="connect" class="connect">
+        connect wallet
+      </el-button>
+    </el-col>
+    <el-col v-else class="user">
+      <p>
+        <span>{{ baddr.substr(0, 6) + "..." + baddr.substr(-4, 4) }}</span>
+      </p>
+      <el-col>
+        <p>My Bag</p>
+        <el-col class="userW">
+          <ul>
+            <li v-for="nft in this.$store.state.userList" :key="nft.token_id">
+              <el-button class="nftlist" @click="openNFT(nft)">
+                <img
+                  :src="
+                    'https://nft-info.plotbridge.io/timg/' + nft.id + '.svg'
+                  "
+                  alt="nft"
+                />{{ nft.id }}
+              </el-button>
+            </li>
+          </ul>
+          <el-col>
+            <el-button @click="sall = true">My Selling</el-button>
+          </el-col>
+        </el-col>
+      </el-col>
+      <el-button @click="sale">Sale</el-button>
+    </el-col>
+    <el-col class="nftInfo" v-if="showInfo">
+      <NFTinfo />
+    </el-col>
+    <el-col>
+      <el-dialog title="salling" :visible.sync="sall">
+        <el-card>
+          <p>img</p>
+          <p>amount</p>
+          <p>discription</p>
+          <el-button>Off Sale</el-button>
+        </el-card>
+      </el-dialog>
+    </el-col>
+    <!-- <el-col>
+      <el-dialog :visible.sync="nftDialog" title="Wallet">
+        <el-button>Sale</el-button>
+        <el-button>Open</el-button>
+        <el-button>Burn</el-button>
+      </el-dialog>
+    </el-col> -->
+  </el-col>
 </template>
 
 <script>
 import { mapState } from "vuex";
-import wops from "../wallet";
+import market from "../market";
+import NFTinfo from "./NFTinfo";
 export default {
+  components: {
+    NFTinfo,
+  },
   computed: mapState({
-    baddr: "baddr",
-    xbalance: "xbalance",
     coin: "coin",
+    baddr: "baddr",
+    userList: [],
+    nftDialog: false,
+    curNFT: {},
   }),
   data() {
-    return {};
+    return {
+      showInfo: false,
+      sall: false,
+    };
   },
   methods: {
     connect: async function () {
-      const commit = this.$store.commit;
-      const loading = this.$loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200, 230, 200, 0.7)",
-      });
-      try {
-        const addr = await wops.connect(this.$store.state.coin, commit);
-        if (!addr) {
-          if (!this.coin) {
-            this.$message(this.$t("no-coin"));
-          } else {
-            this.$message(this.$t("connect-faild"));
-          }
-        }
-      } catch (e) {
-        if (e.code === -32601) {
-          this.$message("wrong network");
-        } else {
-          this.$message(e.message);
-        }
-      }
-      loading.close();
+      await market.connect(this.$store.commit);
+      const list = await market.getMyTokenList(this.baddr);
+      this.$store.commit("setUserList", list);
+      console.log("this user list = ", this.$store.state.userList);
+    },
+    sale: async function () {
+      await market.sendToMarket();
+      await market.setSaleInfo();
+    },
+    openNFT: async function (nft) {
+      this.$store.commit("setCurNFT", nft);
+      console.log(this.$store.state.curNFT);
+      this.showInfo = true;
     },
   },
 };
