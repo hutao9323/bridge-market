@@ -17,7 +17,7 @@ if (USE_TESTNET) {
     bconst.chainNCSymbol = 'TBNB'
     bconst.chainRpcUrl = 'https://data-seed-prebsc-1-s1.binance.org:8545/'
     bconst.chainExplorerUrl = 'https://testnet.bscscan.com'
-    bconst.market_address = '0xb8EE32c0fe5C7ec0E400c9c7140Ef278168BD308'
+    bconst.market_address = '0xb2CdcCDe91D4EB4e3EAC35dd96A7A4D863E94DBf'
 } else {
     // const b_chainId = '0x38'
     // const b_chainName = 'BSC Mainnet'
@@ -38,7 +38,6 @@ async function switch_network() {
         // This error code indicates that the chain has not been added to MetaMask.
         if (switchError.code === ChainNotExist) {
             try {
-                console.log("111")
                 await bsc.provider.send(
                     'wallet_addEthereumChain',
                     [{
@@ -52,7 +51,6 @@ async function switch_network() {
                         rpcUrls: [bconst.chainRpcUrl],
                         blockExplorerUrls: [bconst.chainExplorerUrl]
                     }])
-                console.log('333')
             } catch (err) {
                 // console.log('addError',err)
                 return addError
@@ -114,6 +112,18 @@ async function connect(coin, commit) {
     return false
 }
 
+async function sendToMarket(id){
+    const res = await bsc.pb.safeTransferFrom(bsc.addr, bconst.market_address,id)
+    console.log('transfer receipt', res)
+}
+
+async function setSellInfo(id, price, desc){
+    const res = await bsc.pb.onSale(id, ethers.utils.parseEthers(price), desc)
+    console.log('set sell info receipt', res)
+}
+
 export default {
-    connect: connect
+    connect: connect,
+    sendToMarket: sendToMarket,
+    setSellInfo: setSellInfo
 }
