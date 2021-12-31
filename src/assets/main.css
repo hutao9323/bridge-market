@@ -1,0 +1,50 @@
+/* common style */
+ul li {
+    float: left;
+    list-style: none;
+}
+
+p,
+div,
+span,
+li,
+button {
+    color: #668b66
+}
+
+/* connect wallet template */
+.user {
+    min-height: 200px;
+    border: 1px solid #abcdef;
+}
+
+.user>.el-button {
+    margin-top: 70px;
+}
+
+.user>p {
+    float: right;
+}
+
+.userW>ul li {
+    /* border: 1px solid #668b66; */
+    width: 100px;
+    height: 100px;
+    margin: 10px;
+}
+
+.userW {
+    border: 1px;
+}
+
+.nftlist {
+    width: 100px;
+    height: 100px;
+    padding: 0;
+}
+
+.nftlist img {
+    width: 80px;
+    /* height: 50px; */
+    margin: 0;
+}
