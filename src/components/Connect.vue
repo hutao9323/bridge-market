@@ -81,6 +81,8 @@ export default {
       const list = await market.getMyTokenList(this.baddr);
       this.$store.commit("setUserList", list);
       console.log("this user list = ", this.$store.state.userList);
+      const slist = await market.getSaleList()
+      console.log('sale', slist)
     },
     sale: async function () {
       await market.sendToMarket();

@@ -117,10 +117,12 @@ async function getUserTokenList(addr) {
     for (var i = 0; i < cnt; i++) {
         const idx = await bsc.pb.tokenOfOwnerByIndex(addr, i)
         const uri = await bsc.pb.tokenURI(idx)
-        list.push({
-            id: idx.toNumber(),
-            uri: uri
-        })
+        const info = {id: idx.toNumber(), uri: uri }
+        if(addr == bconst.market_address){
+            const price = await bsc.market.getSaleInfo(idx)
+            info.price = ethers.utils.formatEther(price)
+        }
+        list.push(info)
     }
     console.log('token list of', addr, list)
     return list
@@ -135,20 +137,20 @@ async function getMyTokenList() {
 }
 
 async function sendToMarket(id){
-    const res = await bsc.pb.safeTransferFrom(bsc.addr, bconst.market_address,id)
+    const res = await bsc.pb["safeTransferFrom(address,address,uint256)"](bsc.addr, bconst.market_address, id)
     console.log('transfer receipt', res)
 }
 
 async function setSellInfo(id, price, desc){
-    const res = await bsc.market.onSale(id, ethers.utils.parseEthers(price), desc)
+    const res = await bsc.market.onSale(id, ethers.utils.parseEther(price), desc)
     console.log('set sell info receipt', res)
 }
 
 export default {
     connect: connect,
-    sendToMarket: sendToMarket,
-    setSellInfo: setSellInfo,
     getMyTokenList: getMyTokenList,
-    setSellInfo:setSellInfo 
+    getSaleList: getSaleList,
+    sendToMarket: sendToMarket,
+    setSellInfo: setSellInfo
 }
 
