@@ -82,6 +82,7 @@ export default {
       this.$store.commit("setUserList", list);
       console.log("this user list = ", this.$store.state.userList);
       const slist = await market.getSaleList()
+      this.$store.commit("setSaleList", slist);
       console.log('sale', slist)
     },
     sale: async function () {

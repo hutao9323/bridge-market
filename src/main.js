@@ -30,6 +30,8 @@ const store = new Vuex.Store({
         baddr: false,
         xbalance: -1,
         userList: [],
+        saleList: [],
+        mySaleList: [],
         curNFT: {}
     },
     mutations: {
@@ -46,6 +48,12 @@ const store = new Vuex.Store({
         },
         setUserList(state, userList) {
             state.userList = userList
+        },
+        setSaleList(state, list) {
+            state.saleList = list
+        },
+        setMySaleList(state, list) {
+            state.mySaleList = list
         },
         setCurNFT(state, curNFT) {
             state.curNFT = curNFT

@@ -15,18 +15,23 @@
         <img
           :src="
             'https://nft-info.plotbridge.io/timg/' +
-            this.$store.state.curNFT.id +
+            curNFT.id +
             '.svg'
           "
           alt="nft"
         />
         <div>
-          <p>id : {{ this.$store.state.curNFT.id }}</p>
-          <p>discription : text-discription</p>
+          <p>id : {{ curNFT.id }}</p>
+          <p>description : text-discription</p>
           <p>info : nftInfo</p>
         </div>
+        <div v-if="curNFT.owner">
+        <el-button>Buy</el-button>
+        </div>
+        <div v-else>
         <el-button @click="send">send</el-button>
         <el-button @click="sale">sale</el-button>
+        </div>
       </el-card>
     </el-col>
   </el-col>
@@ -40,7 +45,7 @@ export default {
     baddr: "baddr",
     userList: [],
     nftDialog: false,
-    curNFT: {},
+    curNFT: "curNFT",
   }),
   data() {
     return {
@@ -52,12 +57,12 @@ export default {
       this.showInfo = true;
     },
     send: async function () {
-        const id = this.$store.state.curNFT.id
+        const id = this.curNFT.id
         console.log('id', id)
         await market.sendToMarket(id)
     },
     sale: async function () {
-        const id = this.$store.state.curNFT.id
+        const id = this.curNFT.id
         console.log('id', id)
         await market.setSellInfo(id, '0.01', 'A good start')
     }

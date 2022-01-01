@@ -121,6 +121,7 @@ async function getUserTokenList(addr) {
         if(addr == bconst.market_address){
             const price = await bsc.market.getSaleInfo(idx)
             info.price = ethers.utils.formatEther(price)
+            info.owner = 'market'
         }
         list.push(info)
     }

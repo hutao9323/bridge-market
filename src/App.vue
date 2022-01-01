@@ -4,17 +4,20 @@
       <el-col :span="18">
         <Connect />
       </el-col>
+      <SaleList />
     </el-row>
   </div>
 </template>
 
 <script>
 import Connect from "./components/Connect.vue";
+import SaleList from "./components/SaleList.vue";
 
 export default {
   name: "App",
   components: {
     Connect,
+    SaleList,
   },
 };
 </script>
