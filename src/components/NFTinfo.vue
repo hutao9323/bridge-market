@@ -26,7 +26,7 @@
           <p>info : nftInfo</p>
         </div>
         <div v-if="curNFT.owner">
-        <el-button>Buy</el-button>
+        <el-button @click="buy">Buy</el-button>
         </div>
         <div v-else>
         <el-button @click="send">send</el-button>
@@ -65,6 +65,10 @@ export default {
         const id = this.curNFT.id
         console.log('id', id)
         await market.setSellInfo(id, '0.01', 'A good start')
+    },
+    buy: async function () {
+        console.log('buy id', this.curNFT.id)
+        await market.buyNFT(this.curNFT)
     }
   },
 };
