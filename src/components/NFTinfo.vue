@@ -12,25 +12,23 @@
         </h5>
       </el-col>
       <el-card>
-        <img
-          :src="
-            'https://nft-info.plotbridge.io/timg/' +
-            curNFT.id +
-            '.svg'
-          "
-          alt="nft"
-        />
+        <img :src="curNFT.meta.image" />
         <div>
           <p>id : {{ curNFT.id }}</p>
-          <p>description : text-discription</p>
-          <p>info : nftInfo</p>
+          <p>description : {{ curNFT.desc }}</p>
+          <p v-if="curNFT.price">price: {{ curNFT.price }} </p>
         </div>
         <div v-if="curNFT.owner">
-        <el-button @click="buy">Buy</el-button>
+            <div v-if="curNFT.seller">
+                <el-button @click="sale">sale</el-button>
+                <el-button @click="retreat">Retreat</el-button>
+            </div>
+            <div v-else>
+                <el-button @click="buy">Buy</el-button>
+            </div>
         </div>
         <div v-else>
-        <el-button @click="send">send</el-button>
-        <el-button @click="sale">sale</el-button>
+            <el-button @click="send">send</el-button>
         </div>
       </el-card>
     </el-col>
@@ -69,6 +67,10 @@ export default {
     buy: async function () {
         console.log('buy id', this.curNFT.id)
         await market.buyNFT(this.curNFT)
+    },
+    retreat: async function () {
+        console.log('retreat id', this.curNFT.id)
+        await market.retreatNFT(this.curNFT)
     }
   },
 };

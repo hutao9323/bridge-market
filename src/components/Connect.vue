@@ -15,12 +15,8 @@
           <ul>
             <li v-for="nft in this.$store.state.userList" :key="nft.token_id">
               <el-button class="nftlist" @click="openNFT(nft)">
-                <img
-                  :src="
-                    'https://nft-info.plotbridge.io/timg/' + nft.id + '.svg'
-                  "
-                  alt="nft"
-                />{{ nft.id }}
+                <img :src="nft.meta.image">
+                {{ nft.id }}
               </el-button>
             </li>
           </ul>
@@ -29,7 +25,6 @@
           </el-col>
         </el-col>
       </el-col>
-      <el-button @click="sale">Sale</el-button>
     </el-col>
     <el-col class="nftInfo" v-if="showInfo">
       <NFTinfo />
@@ -39,8 +34,7 @@
         <el-card>
           <p>img</p>
           <p>amount</p>
-          <p>discription</p>
-          <el-button>Off Sale</el-button>
+          <p>description</p>
         </el-card>
       </el-dialog>
     </el-col>
@@ -84,10 +78,6 @@ export default {
       const slist = await market.getSaleList()
       this.$store.commit("setSaleList", slist);
       console.log('sale', slist)
-    },
-    sale: async function () {
-      await market.sendToMarket();
-      await market.setSaleInfo();
     },
     openNFT: async function (nft) {
       this.$store.commit("setCurNFT", nft);

@@ -21,7 +21,7 @@ if (USE_TESTNET) {
     bconst.chainNCSymbol = 'TBNB'
     bconst.chainRpcUrl = 'https://data-seed-prebsc-1-s1.binance.org:8545/'
     bconst.chainExplorerUrl = 'https://testnet.bscscan.com'
-    bconst.market_address = '0x53d9A4F27379bA88760318fFE069c166d1107d8F'
+    bconst.market_address = '0x21106aAFd2243fC6Ab4213D39EAec9869d7Fb5d9'
 } else {
     // const b_chainId = '0x38'
     // const b_chainName = 'BSC Mainnet'
@@ -117,7 +117,8 @@ async function getUserTokenList(addr) {
     for (var i = 0; i < cnt; i++) {
         const idx = await bsc.pb.tokenOfOwnerByIndex(addr, i)
         const uri = await bsc.pb.tokenURI(idx)
-        const info = {id: idx.toNumber(), uri: uri }
+        const meta = await (await fetch(uri)).json()
+        const info = {id: idx.toNumber(), uri: uri , meta: meta}
         if(addr == bconst.market_address){
             const sinfo = await bsc.market.getSaleInfo(idx)
             info.price = ethers.utils.formatEther(sinfo[0])
@@ -157,11 +158,17 @@ async function buyNFT(nft){
     console.log('buy receipt', res)
 }
 
+async function retreatNFT(nft){
+    const res = await bsc.market.offSale(nft.id)
+    console.log('retreat receipt', res)
+}
+
 export default {
     buyNFT: buyNFT,
     connect: connect,
     getMyTokenList: getMyTokenList,
     getSaleList: getSaleList,
+    retreatNFT: retreatNFT,
     sendToMarket: sendToMarket,
     setSellInfo: setSellInfo
 }
