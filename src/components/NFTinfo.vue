@@ -20,7 +20,7 @@
         </div>
         <div v-if="curNFT.owner">
             <div v-if="curNFT.seller">
-                <el-button @click="sale">sale</el-button>
+                <el-button @click="sale">Set Price</el-button>
                 <el-button @click="retreat">Retreat</el-button>
             </div>
             <div v-else>
@@ -28,7 +28,7 @@
             </div>
         </div>
         <div v-else>
-            <el-button @click="send">send</el-button>
+            <el-button @click="send">Send</el-button>
         </div>
       </el-card>
     </el-col>
@@ -43,7 +43,7 @@ export default {
     baddr: "baddr",
     userList: [],
     nftDialog: false,
-    curNFT: "curNFT",
+    curNFT: "curNFT"
   }),
   data() {
     return {
@@ -62,7 +62,15 @@ export default {
     sale: async function () {
         const id = this.curNFT.id
         console.log('id', id)
-        await market.setSellInfo(id, '0.01', 'A good start')
+        var price = '0.01'
+        if(this.curNFT.price=='0.01'){
+            price = '0.05'
+        }else if(this.curNFT.price=='0.05'){
+            price = '0.12'
+        }else if(this.curNFT.price=='0.12'){
+            price = '0.02'
+        }
+        await market.setSellInfo(id, price, 'A good start')
     },
     buy: async function () {
         console.log('buy id', this.curNFT.id)
