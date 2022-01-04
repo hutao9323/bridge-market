@@ -20,9 +20,21 @@
     <div v-else>
       <el-button @click="send">Sale</el-button>
     </div>
-    <el-dialog :visible.sync="saleDialog" title="Setting">
-      <el-input type="text" placeholder="input description" v-model="nftDesc" />
-      <el-input type="text" placeholder="input price" v-model="nftPrice" />
+    <el-dialog :visible.sync="saleDialog" title="Setting" append-to-body>
+      <el-input
+        type="text"
+        placeholder="input description"
+        v-model="nftDesc"
+        maxlength="50"
+        show-word-limit
+      />
+      <el-input
+        type="text"
+        placeholder="input price"
+        v-model="nftPrice"
+        maxlength="20"
+        show-word-limit
+      />
       <el-button @click="sell">Sell</el-button>
     </el-dialog>
   </el-col>
@@ -57,16 +69,12 @@ export default {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
       console.log("id", id);
-      // var price = "0.01";
-      // if (curNFT.price == "0.01") {
-      //   price = "0.05";
-      // } else if (curNFT.price == "0.05") {
-      //   price = "0.12";
-      // } else if (curNFT.price == "0.12") {
-      //   price = "0.02";
-      // }
-
-      // const curNFTprice = this.nftPrice
+      if (this.nftPrice == null && this.nftPrice == 0) {
+        this.$message("price is empty");
+      }
+      if (this.nftDesc == null) {
+        this.$message("description is empty");
+      }
       await market.setSellInfo(id, this.nftPrice, this.nftDesc);
     },
     buy: async function () {

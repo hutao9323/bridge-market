@@ -2,16 +2,20 @@
   <el-col>
     <el-col>
       <ul>
-        <li v-for="li in this.$store.state.mySaleList" :key="li.id"></li>
+        <li
+          v-for="nft in this.$store.state.mySaleList"
+          :key="nft.id"
+          @click="openNFT(nft)"
+        >
+          <el-button>
+            <img :src="nft.meta.image" :alt="nft.id" />{{ nft.id }}</el-button
+          >
+        </li>
       </ul>
     </el-col>
     <el-col>
-      <el-dialog title="saling" :visible.sync="mysall">
-        <el-card>
-          <p>img</p>
-          <p>amount</p>
-          <p>description</p>
-        </el-card>
+      <el-dialog title="saling" :visible.sync="mysale" >
+        <el-card><NFTinfo /></el-card>
       </el-dialog>
     </el-col>
   </el-col>
@@ -19,20 +23,24 @@
 <script>
 import market from "../market";
 import { mapState } from "vuex";
+import NFTinfo from "./NFTinfo.vue";
 export default {
+  components: {
+    NFTinfo,
+  },
   computed: mapState({
     curNFT: "curNFT",
   }),
   data() {
     return {
-      mysall: false,
+      mysale: false,
     };
   },
   methods: {
     openNFT: async function (nft) {
       this.$store.commit("setCurNFT", nft);
       console.log(this.$store.state.curNFT);
-      //   this.showInfo = true;
+      this.mysale = true;
     },
   },
 };

@@ -8,7 +8,11 @@
         <p>Market On Sale</p>
         <ul>
           <li v-for="nft in nftList" :key="nft.token_id">
-            <el-button class="nftlist" @click="openNFT(nft)">
+            <el-button
+              class="nftlist"
+              @click="openNFT(nft)"
+              v-if="nft.price != 0.0"
+            >
               <img :src="nft.meta.image" />
               <el-badge v-if="nft.seller" value="Mine" class="item">
                 <span>{{ nft.id }}</span>

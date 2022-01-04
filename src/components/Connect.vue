@@ -55,9 +55,17 @@ export default {
       const slist = await market.getSaleList();
       this.$store.commit("setSaleList", slist);
       console.log("sale", slist);
-      // const mSlist = await 
+      let mSlist = [];
+      const sl = this.$store.state.saleList;
+      for (let i = 0; i < sl.length; i++) {
+        if (sl[i].seller == true) {
+          mSlist.push(sl[i]);
+          // console.log("my sale list =", mSlist);
+          this.$store.commit("setMySaleList", mSlist);
+        }
+      }
     },
-    // 
+    //
   },
 };
 </script>

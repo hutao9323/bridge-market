@@ -37,7 +37,6 @@ const store = new Vuex.Store({
         setBaddr(state, baddr) {
             state.baddr = baddr
         },
-
         setCoin(state, coin) {
             state.coin = coin
         },
