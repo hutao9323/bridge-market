@@ -28,7 +28,6 @@ const store = new Vuex.Store({
     state: {
         coin: "xch",
         baddr: false,
-        xbalance: -1,
         userList: [],
         saleList: [],
         mySaleList: [],
@@ -37,10 +36,6 @@ const store = new Vuex.Store({
     mutations: {
         setBaddr(state, baddr) {
             state.baddr = baddr
-        },
-
-        setXbalance(state, xb) {
-            state.xbalance = xb
         },
 
         setCoin(state, coin) {

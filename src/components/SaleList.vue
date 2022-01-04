@@ -1,22 +1,22 @@
 <template>
   <el-col>
     <el-col v-if="baddr">
-      <p>
+      <!-- <p>
         <span>{{ baddr.substr(0, 6) + "..." + baddr.substr(-4, 4) }}</span>
-      </p>
+      </p> -->
       <el-col>
         <p>Market On Sale</p>
-          <ul>
-            <li v-for="nft in nftList" :key="nft.token_id">
-              <el-button class="nftlist" @click="openNFT(nft)">
-                <img :src="nft.meta.image"/>
-                <el-badge v-if="nft.seller" value="Mine" class="item">
-                    <span>{{ nft.id }}</span>
-                </el-badge>
-                <span v-else>{{ nft.id }}</span>
-              </el-button>
-            </li>
-          </ul>
+        <ul>
+          <li v-for="nft in nftList" :key="nft.token_id">
+            <el-button class="nftlist" @click="openNFT(nft)">
+              <img :src="nft.meta.image" />
+              <el-badge v-if="nft.seller" value="Mine" class="item">
+                <span>{{ nft.id }}</span>
+              </el-badge>
+              <span v-else>{{ nft.id }}</span>
+            </el-button>
+          </li>
+        </ul>
       </el-col>
     </el-col>
     <el-col class="nftInfo" v-if="showInfo">
@@ -38,7 +38,7 @@ export default {
     baddr: "baddr",
     nftList: "saleList",
     nftDialog: false,
-    curNFT: {},
+    curNFT: "curNFT",
   }),
   data() {
     return {
@@ -48,12 +48,12 @@ export default {
   },
   methods: {
     openNFT: async function (nft) {
-      if(nft.seller||parseFloat(nft.price)>0){
-          this.$store.commit("setCurNFT", nft);
-          console.log(this.$store.state.curNFT);
-          this.showInfo = true;
-      }else{
-          this.$alert("价格为0,不可购买。请联系卖家修改价格。")
+      if (nft.seller || parseFloat(nft.price) > 0) {
+        this.$store.commit("setCurNFT", nft);
+        console.log("setCurNFT", this.$store.state.curNFT);
+        this.showInfo = true;
+      } else {
+        this.$alert("价格为0,不可购买。请联系卖家修改价格。");
       }
     },
   },

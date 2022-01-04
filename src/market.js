@@ -9,11 +9,6 @@ const bsc = {}
 const bconst = {}
 
 const USE_TESTNET = true
-// const b_xaddresses = {
-//     'XCC': b_xcc_address,
-//     'XCH': b_xch_address,
-//     'HDD': b_hdd_address
-// }
 if (USE_TESTNET) {
     bconst.chainId = "0x61"
     bconst.chainName = 'BSC Testnet'

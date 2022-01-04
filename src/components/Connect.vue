@@ -6,45 +6,15 @@
       </el-button>
     </el-col>
     <el-col v-else class="user">
-      <p>
-        <span>{{ baddr.substr(0, 6) + "..." + baddr.substr(-4, 4) }}</span>
-      </p>
-      <el-col>
-        <p>My Bag</p>
-        <el-col class="userW">
-          <ul>
-            <li v-for="nft in this.$store.state.userList" :key="nft.token_id">
-              <el-button class="nftlist" @click="openNFT(nft)">
-                <img :src="nft.meta.image">
-                {{ nft.id }}
-              </el-button>
-            </li>
-          </ul>
-          <el-col>
-            <el-button @click="sall = true">My Selling</el-button>
-          </el-col>
-        </el-col>
-      </el-col>
+      <el-tabs type="border-card">
+        <p>
+          <span>{{ baddr.substr(0, 6) + "..." + baddr.substr(-4, 4) }}</span>
+        </p>
+        <el-tab-pane label="Market"><SaleList /></el-tab-pane>
+        <el-tab-pane label="My Bag"><MyBag /></el-tab-pane>
+        <el-tab-pane label="My Sale"><MySale /></el-tab-pane>
+      </el-tabs>
     </el-col>
-    <el-col class="nftInfo" v-if="showInfo">
-      <NFTinfo />
-    </el-col>
-    <el-col>
-      <el-dialog title="salling" :visible.sync="sall">
-        <el-card>
-          <p>img</p>
-          <p>amount</p>
-          <p>description</p>
-        </el-card>
-      </el-dialog>
-    </el-col>
-    <!-- <el-col>
-      <el-dialog :visible.sync="nftDialog" title="Wallet">
-        <el-button>Sale</el-button>
-        <el-button>Open</el-button>
-        <el-button>Burn</el-button>
-      </el-dialog>
-    </el-col> -->
   </el-col>
 </template>
 
@@ -52,9 +22,16 @@
 import { mapState } from "vuex";
 import market from "../market";
 import NFTinfo from "./NFTinfo";
+import SaleList from "./SaleList.vue";
+import MyBag from "./MyBag.vue";
+import MySale from "./MySale.vue";
+
 export default {
   components: {
     NFTinfo,
+    SaleList,
+    MyBag,
+    MySale,
   },
   computed: mapState({
     coin: "coin",
@@ -75,15 +52,12 @@ export default {
       const list = await market.getMyTokenList(this.baddr);
       this.$store.commit("setUserList", list);
       console.log("this user list = ", this.$store.state.userList);
-      const slist = await market.getSaleList()
+      const slist = await market.getSaleList();
       this.$store.commit("setSaleList", slist);
-      console.log('sale', slist)
+      console.log("sale", slist);
+      // const mSlist = await 
     },
-    openNFT: async function (nft) {
-      this.$store.commit("setCurNFT", nft);
-      console.log(this.$store.state.curNFT);
-      this.showInfo = true;
-    },
+    // 
   },
 };
 </script>
