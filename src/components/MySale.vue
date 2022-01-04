@@ -2,12 +2,8 @@
   <el-col>
     <el-col>
       <ul>
-        <li
-          v-for="nft in this.$store.state.mySaleList"
-          :key="nft.id"
-          @click="openNFT(nft)"
-        >
-          <el-button>
+        <li v-for="nft in this.$store.state.mySaleList" :key="nft.id">
+          <el-button @click="openNFT(nft)">
             <img :src="nft.meta.image" :alt="nft.id" />{{ nft.id }}</el-button
           >
         </li>
@@ -39,7 +35,8 @@ export default {
   methods: {
     openNFT: async function (nft) {
       this.$store.commit("setCurNFT", nft);
-      console.log(this.$store.state.curNFT);
+      // console.log(this.$store.state.curNFT);
+      console.log("nft", nft.desc);
       this.mysale = true;
     },
   },

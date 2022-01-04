@@ -113,8 +113,18 @@ async function getUserTokenList(addr) {
         const idx = await bsc.pb.tokenOfOwnerByIndex(addr, i)
         const uri = await bsc.pb.tokenURI(idx)
         const meta = await (await fetch(uri)).json()
-        const info = {id: idx.toNumber(), uri: uri , meta: meta}
-        if(addr == bconst.market_address){
+        // const minfo = await bsc.market.getSaleInfo(idx)
+        // console.log('minfo ', minfo.price)
+        // const desc = minfo.desc
+        // const price = minfo.price
+        const info = {
+            id: idx.toNumber(),
+            uri: uri,
+            meta: meta,
+            // desc: desc,
+            // price: price
+        }
+        if (addr == bconst.market_address) {
             const sinfo = await bsc.market.getSaleInfo(idx)
             info.price = ethers.utils.formatEther(sinfo[0])
             info.desc = sinfo[1]
@@ -135,25 +145,27 @@ async function getMyTokenList() {
     return await getUserTokenList(bsc.addr)
 }
 
-async function sendToMarket(id){
+async function sendToMarket(id) {
     const res = await bsc.pb["safeTransferFrom(address,address,uint256)"](bsc.addr, bconst.market_address, id)
     console.log('transfer receipt', res)
 }
 
-async function setSellInfo(id, price, desc){
+async function setSellInfo(id, price, desc) {
     const res = await bsc.market.onSale(id, ethers.utils.parseEther(price), desc)
     console.log('set sell info receipt', res)
 }
 
 
-async function buyNFT(nft){
+async function buyNFT(nft) {
     const price = await ethers.utils.parseEther(nft.price)
     const id = ethers.BigNumber.from(nft.id)
-    const res = await bsc.market.buy(id,{value:price})
+    const res = await bsc.market.buy(id, {
+        value: price
+    })
     console.log('buy receipt', res)
 }
 
-async function retreatNFT(nft){
+async function retreatNFT(nft) {
     const res = await bsc.market.offSale(nft.id)
     console.log('retreat receipt', res)
 }
@@ -167,4 +179,3 @@ export default {
     sendToMarket: sendToMarket,
     setSellInfo: setSellInfo
 }
-

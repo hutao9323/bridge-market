@@ -74,11 +74,12 @@ export default {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
       console.log("id", id);
-      if (this.nftPrice == null && this.nftPrice == 0) {
-        this.$message("price is empty");
-      }
+
       if (this.nftDesc == null) {
         this.$message("description is empty");
+      }
+      if (this.nftPrice === 0 || this.nftPrice == null) {
+        this.$message("price is empty");
       }
       await market.setSellInfo(id, this.nftPrice, this.nftDesc);
     },
