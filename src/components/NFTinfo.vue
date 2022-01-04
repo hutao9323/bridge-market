@@ -20,20 +20,25 @@
     <div v-else>
       <el-button @click="send">Sale</el-button>
     </div>
-    <el-dialog :visible.sync="saleDialog" title="Setting" append-to-body>
+    <el-dialog :visible.sync="saleDialog" title="Setting" append-to-body center>
+      <label for="decription" class="labels">Description</label>
+
       <el-input
         type="text"
         placeholder="input description"
         v-model="nftDesc"
         maxlength="50"
         show-word-limit
+        id="description"
       />
+      <label for="price" class="labels">Price(BNB)</label>
       <el-input
         type="text"
         placeholder="input price"
         v-model="nftPrice"
         maxlength="20"
         show-word-limit
+        id="price"
       />
       <el-button @click="sell">Sell</el-button>
     </el-dialog>

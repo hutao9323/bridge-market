@@ -14,7 +14,7 @@
       </ul>
     </el-col>
     <el-col>
-      <el-dialog title="saling" :visible.sync="mysale" >
+      <el-dialog title="Selling" :visible.sync="mysale" center>
         <el-card><NFTinfo /></el-card>
       </el-dialog>
     </el-col>
