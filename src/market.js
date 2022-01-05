@@ -14,7 +14,7 @@ if (USE_TESTNET) {
     bconst.chainName = 'BSC Testnet'
     bconst.chainNetName = 'bnbt'
     bconst.chainNCSymbol = 'TBNB'
-    bconst.pbt_address = "0xC518c54DCd691aaF7Be683B9D01D990B74B57b5e"
+    bconst.pbt_address = "0x1dE49f4BfAEFA123238eC620792975f0Ee09F404"
     bconst.chainRpcUrl = 'https://data-seed-prebsc-1-s1.binance.org:8545/'
     bconst.chainExplorerUrl = 'https://testnet.bscscan.com'
     bconst.market_address = '0x43210194d8f939Ab57A2d18c6775e9Cb60cfE33d'
