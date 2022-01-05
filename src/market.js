@@ -16,7 +16,7 @@ if (USE_TESTNET) {
     bconst.chainNCSymbol = 'TBNB'
     bconst.chainRpcUrl = 'https://data-seed-prebsc-1-s1.binance.org:8545/'
     bconst.chainExplorerUrl = 'https://testnet.bscscan.com'
-    bconst.market_address = '0x21106aAFd2243fC6Ab4213D39EAec9869d7Fb5d9'
+    bconst.market_address = '0x144D4d30303484C0f7F89385291AcE90209A1b88'
 } else {
     // const b_chainId = '0x38'
     // const b_chainName = 'BSC Mainnet'
