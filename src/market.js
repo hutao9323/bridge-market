@@ -14,6 +14,7 @@ if (USE_TESTNET) {
     bconst.chainName = 'BSC Testnet'
     bconst.chainNetName = 'bnbt'
     bconst.chainNCSymbol = 'TBNB'
+    bconst.pbt_address = "0x050fe2d85B12e394D190aC20939CC6f12B0012B2"
     bconst.chainRpcUrl = 'https://data-seed-prebsc-1-s1.binance.org:8545/'
     bconst.chainExplorerUrl = 'https://testnet.bscscan.com'
     bconst.market_address = '0x144D4d30303484C0f7F89385291AcE90209A1b88'
@@ -88,7 +89,8 @@ async function connect(commit) {
         bsc.signer = bsc.provider.getSigner()
         bsc.addr = await bsc.signer.getAddress()
         bsc.market = new ethers.Contract(bconst.market_address, market_abi, bsc.signer)
-        const pb_address = await bsc.market.tokenAddress()
+        // const pb_address = await bsc.market.tokenAddress()
+        const pb_address = bconst.pbt_address
         console.log('pb-addr', pb_address)
         bsc.pb = new ethers.Contract(pb_address, pb_abi, bsc.signer)
         console.log('pb', bsc.pb)
@@ -113,19 +115,13 @@ async function getUserTokenList(addr) {
         const idx = await bsc.pb.tokenOfOwnerByIndex(addr, i)
         const uri = await bsc.pb.tokenURI(idx)
         const meta = await (await fetch(uri)).json()
-        // const minfo = await bsc.market.getSaleInfo(idx)
-        // console.log('minfo ', minfo.price)
-        // const desc = minfo.desc
-        // const price = minfo.price
         const info = {
             id: idx.toNumber(),
             uri: uri,
             meta: meta,
-            // desc: desc,
-            // price: price
         }
         if (addr == bconst.market_address) {
-            const sinfo = await bsc.market.getSaleInfo(idx)
+            const sinfo = await bsc.market.getSaleInfo(bconst.pbt_address, idx)
             info.price = ethers.utils.formatEther(sinfo[0])
             info.desc = sinfo[1]
             info.seller = sinfo[2]
@@ -151,7 +147,7 @@ async function sendToMarket(id) {
 }
 
 async function setSellInfo(id, price, desc) {
-    const res = await bsc.market.onSale(id, ethers.utils.parseEther(price), desc)
+    const res = await bsc.market.onSale(bconst.pbt_address, id, ethers.utils.parseEther(price), desc)
     console.log('set sell info receipt', res)
 }
 
@@ -159,14 +155,14 @@ async function setSellInfo(id, price, desc) {
 async function buyNFT(nft) {
     const price = await ethers.utils.parseEther(nft.price)
     const id = ethers.BigNumber.from(nft.id)
-    const res = await bsc.market.buy(id, {
+    const res = await bsc.market.buy(bconst.pbt_address, id, {
         value: price
     })
     console.log('buy receipt', res)
 }
 
 async function retreatNFT(nft) {
-    const res = await bsc.market.offSale(nft.id)
+    const res = await bsc.market.offSale(bconst.pbt_address, nft.id)
     console.log('retreat receipt', res)
 }
 
