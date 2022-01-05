@@ -1,12 +1,17 @@
 <template>
   <el-col>
-    <img :src="this.$store.state.curNFT.meta.image" />
+    <img :src="curNFT.meta.image" />
     <div>
-      <p>id : {{ this.$store.state.curNFT.id }}</p>
+      <p>id : {{ curNFT.id }}</p>
 
-      <div v-if="this.$store.state.curNFT.price">
-        <p>price: {{ this.$store.state.curNFT.price }} BNB</p>
-        <p>description : {{ this.$store.state.curNFT.desc }}</p>
+      <div v-if="curNFT.price">
+        <p>price: {{ curNFT.price }} BNB</p>
+        <div v-if="curNFT.desc">
+          <p>description : {{ curNFT.desc }}</p>
+        </div>
+        <div v-else>
+          <p>description : nothing</p>
+        </div>
       </div>
     </div>
     <div v-if="this.$store.state.curNFT.owner">
@@ -54,7 +59,7 @@ export default {
     baddr: "baddr",
     userList: [],
     nftDialog: false,
-    curNFT: {},
+    curNFT: "curNFT",
   }),
   data() {
     return {
@@ -68,17 +73,11 @@ export default {
     send: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
-      console.log("id", id);
       await market.sendToMarket(id);
     },
     sell: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
-      console.log("id", id);
-
-      if (this.nftDesc == null) {
-        this.$message("description is empty");
-      }
       if (this.nftPrice === 0 || this.nftPrice == null) {
         this.$message("price is empty");
       }
@@ -86,13 +85,10 @@ export default {
     },
     buy: async function () {
       const curNFT = this.$store.state.curNFT;
-      console.log("buy id", curNFT.id);
       await market.buyNFT(curNFT);
     },
     retreat: async function () {
       const curNFT = this.$store.state.curNFT;
-
-      console.log("retreat id", curNFT.id);
       await market.retreatNFT(curNFT);
     },
   },
