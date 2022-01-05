@@ -19,6 +19,9 @@
             <Connect />
           </el-col>
         </el-row>
+        <p style="text-align: left">
+          目前网站不支持自动刷新,操作交易确认后请手动刷新
+        </p>
       </el-main>
       <el-footer></el-footer>
     </el-container>

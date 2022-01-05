@@ -118,7 +118,6 @@ export default {
       try {
         const slist = await market.getSaleList();
         this.$store.commit("setSaleList", slist);
-        console.log("sale", slist);
       } catch (e) {
         this.$message(e.message);
       }
@@ -132,7 +131,6 @@ export default {
       });
       const list = await market.getMyTokenList(this.baddr);
       this.$store.commit("setUserList", list);
-      console.log("this user list = ", this.$store.state.userList);
       loading.close();
     },
     refreshS: async function () {
@@ -143,13 +141,11 @@ export default {
       });
       const slist = await market.getSaleList();
       this.$store.commit("setSaleList", slist);
-      console.log("sale", slist);
       let mSlist = [];
       const sl = this.$store.state.saleList;
       for (let i = 0; i < sl.length; i++) {
         if (sl[i].seller == true) {
           mSlist.push(sl[i]);
-          // console.log("my sale list =", mSlist);
           this.$store.commit("setMySaleList", mSlist);
         }
       }
