@@ -1,11 +1,17 @@
 <template>
   <el-col>
     <el-col v-if="baddr">
-      <!-- <p>
-        <span>{{ baddr.substr(0, 6) + "..." + baddr.substr(-4, 4) }}</span>
-      </p> -->
       <el-col>
-        <p>Market On Sale</p>
+        <p>
+          Market On Sale
+          <el-button
+            class="el-icon-refresh"
+            circle
+            size="small"
+            type="primary"
+            @click="refreshM"
+          ></el-button>
+        </p>
         <ul>
           <li v-for="nft in nftList" :key="nft.token_id">
             <el-button
@@ -60,6 +66,21 @@ export default {
       } else {
         this.$alert("价格为0,不可购买。请联系卖家修改价格。");
       }
+    },
+    refreshM: async function () {
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
+      try {
+        const slist = await market.getSaleList();
+        this.$store.commit("setSaleList", slist);
+        console.log("sale", slist);
+      } catch (e) {
+        this.$message(e.message);
+      }
+      loading.close();
     },
   },
 };

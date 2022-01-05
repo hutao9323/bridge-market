@@ -3,10 +3,11 @@
     <img :src="this.$store.state.curNFT.meta.image" />
     <div>
       <p>id : {{ this.$store.state.curNFT.id }}</p>
-      <p>description : {{ this.$store.state.curNFT.desc }}</p>
-      <p v-if="this.$store.state.curNFT.price">
-        price: {{ this.$store.state.curNFT.price }}
-      </p>
+
+      <div v-if="this.$store.state.curNFT.price">
+        <p>price: {{ this.$store.state.curNFT.price }} BNB</p>
+        <p>description : {{ this.$store.state.curNFT.desc }}</p>
+      </div>
     </div>
     <div v-if="this.$store.state.curNFT.owner">
       <div v-if="this.$store.state.curNFT.seller">

@@ -27,25 +27,21 @@ button {
 }
 
 .userW>ul li {
-    /* border: 1px solid #668b66; */
     width: 100px;
     height: 100px;
     margin: 10px;
+    padding: 5px;
 }
 
-.userW {
-    border: 1px;
-}
 
 .nftlist {
-    width: 100px;
+    width: 105px;
     height: 100px;
-    padding: 0;
+    padding: 0px;
 }
 
 .nftlist img {
     width: 80px;
-    /* height: 50px; */
     margin: 0;
 }
 

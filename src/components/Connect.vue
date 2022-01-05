@@ -44,26 +44,37 @@ export default {
     return {
       showInfo: false,
       sall: false,
+      loading: false,
     };
   },
   methods: {
     connect: async function () {
       await market.connect(this.$store.commit);
-      const list = await market.getMyTokenList(this.baddr);
-      this.$store.commit("setUserList", list);
-      console.log("this user list = ", this.$store.state.userList);
-      const slist = await market.getSaleList();
-      this.$store.commit("setSaleList", slist);
-      console.log("sale", slist);
-      let mSlist = [];
-      const sl = this.$store.state.saleList;
-      for (let i = 0; i < sl.length; i++) {
-        if (sl[i].seller == true) {
-          mSlist.push(sl[i]);
-          // console.log("my sale list =", mSlist);
-          this.$store.commit("setMySaleList", mSlist);
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
+      try {
+        const list = await market.getMyTokenList(this.baddr);
+        this.$store.commit("setUserList", list);
+        console.log("this user list = ", this.$store.state.userList);
+        const slist = await market.getSaleList();
+        this.$store.commit("setSaleList", slist);
+        console.log("sale", slist);
+        let mSlist = [];
+        const sl = this.$store.state.saleList;
+        for (let i = 0; i < sl.length; i++) {
+          if (sl[i].seller == true) {
+            mSlist.push(sl[i]);
+            // console.log("my sale list =", mSlist);
+            this.$store.commit("setMySaleList", mSlist);
+          }
         }
+      } catch (e) {
+        this.$message(e.message);
       }
+      loading.close();
     },
     //
   },
