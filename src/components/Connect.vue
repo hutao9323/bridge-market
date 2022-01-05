@@ -1,7 +1,7 @@
 <template>
   <el-col>
     <el-col v-if="!baddr" class="user">
-      <el-button round @click="connect" class="connect">
+      <el-button round @click="connect_wallet" class="connect">
         connect wallet
       </el-button>
     </el-col>
@@ -72,9 +72,8 @@ export default {
   computed: mapState({
     coin: "coin",
     baddr: "baddr",
-    userList: [],
-    nftDialog: false,
-    curNFT: {},
+    userList: "userList",
+    curNFT: "curNFT",
   }),
   data() {
     return {
@@ -84,30 +83,37 @@ export default {
     };
   },
   methods: {
-    connect: async function () {
-      await market.connect(this.$store.commit);
-      const loading = this.$loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200,230,200,0.6)",
-      });
+    connect_wallet: async function () {
+      const commit = this.$store.commit;
+      // const loading = this.$loading({
+      //   lock: true,
+      //   spinner: "el-icon-loading",
+      //   background: "rgba(200,230,200,0.6)",
+      // });
       try {
+        console.log("connect coin", this.$store.state.coin);
+        await market.connect(this.$store.state.coin, commit);
+
         const list = await market.getMyTokenList(this.baddr);
-        this.$store.commit("setUserList", list);
+        commit("setUserList", list);
+        console.log("list", list);
+
         const slist = await market.getSaleList();
-        this.$store.commit("setSaleList", slist);
+        commit("setSaleList", slist);
+        console.log("slist123", slist);
         let mSlist = [];
         const sl = this.$store.state.saleList;
         for (let i = 0; i < sl.length; i++) {
           if (sl[i].seller == true) {
             mSlist.push(sl[i]);
-            this.$store.commit("setMySaleList", mSlist);
+            commit("setMySaleList", mSlist);
           }
         }
+        console.log(2);
       } catch (e) {
         this.$message(e.message);
       }
-      loading.close();
+      // loading.close();
     },
     refreshM: async function () {
       const loading = this.$loading({
@@ -151,7 +157,6 @@ export default {
       }
       loading.close();
     },
-    //
   },
 };
 </script>

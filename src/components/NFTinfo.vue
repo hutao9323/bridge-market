@@ -14,8 +14,8 @@
         </div>
       </div>
     </div>
-    <div v-if="this.$store.state.curNFT.owner">
-      <div v-if="this.$store.state.curNFT.seller">
+    <div v-if="curNFT.owner">
+      <div v-if="curNFT.seller">
         <el-button @click="saleDialog = true">Set Price</el-button>
         <el-button @click="retreat">Retreat</el-button>
       </div>
@@ -57,7 +57,7 @@ export default {
   computed: mapState({
     coin: "coin",
     baddr: "baddr",
-    userList: [],
+    userList: "userList",
     nftDialog: false,
     curNFT: "curNFT",
   }),

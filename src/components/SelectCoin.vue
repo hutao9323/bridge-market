@@ -1,8 +1,8 @@
 <template>
   <el-col>
-    <el-select v-model="coinchg" placeholder="Select Coin">
-      <el-option key="PBT" label="PBT" value="PBT"></el-option>
-      <el-option key="PBX" label="PBX" value="PBX"></el-option>
+    <el-select v-model="coinchg">
+      <el-option key="PBT" label="PlotBridge Truck" value="PBT"></el-option>
+      <el-option key="PBX" label="PlotBridge Xin" value="PBX"></el-option>
     </el-select>
   </el-col>
 </template>
@@ -16,7 +16,7 @@ export default {
     userList: [],
   }),
   data() {
-    const curCoin = this.coin;
+    const curCoin = this.$store.state.coin;
     return {
       coinchg: curCoin,
     };
@@ -31,30 +31,39 @@ export default {
   },
   methods: {
     connect: async function (coin) {
-      const loading = this.loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200,230,200,0.6)",
-      });
-      await market.connect(coin, this.$store.commit);
+      //   const loading = this.loading({
+      //     lock: true,
+      //     spinner: "el-icon-loading",
+      //     background: "rgba(200,230,200,0.6)",
+      //   });
+      const commit = this.$store.commit;
 
-      try {
-        const list = await market.getMyTokenList(this.baddr);
-        this.$store.commit("setUserList", list);
-        const slist = await market.getSaleList();
-        this.$store.commit("setSaleList", slist);
-        let mSlist = [];
-        const sl = this.$store.state.saleList;
-        for (let i = 0; i < sl.length; i++) {
-          if (sl[i].seller == true) {
-            mSlist.push(sl[i]);
-            this.$store.commit("setMySaleList", mSlist);
-          }
-        }
-      } catch (e) {
-        this.$message(e.message);
+      const addr = await market.connect(coin, commit);
+      console.log("addrrr", addr);
+      if (!addr) {
+        this.$message("connect faild");
       }
-      loading.close();
+      console.log("coinPBX?", coin);
+      //   try {
+      const list = await market.getMyTokenList(this.baddr);
+      commit("setUserList", list);
+      console.log("pbcoin", list);
+      const slist = await market.getSaleList();
+      commit("setSaleList", slist);
+      console.log("pbcoinMarket", slist);
+
+      let mSlist = [];
+      const sl = this.$store.state.saleList;
+      for (let i = 0; i < sl.length; i++) {
+        if (sl[i].seller == true) {
+          mSlist.push(sl[i]);
+          commit("setMySaleList", mSlist);
+        }
+      }
+      //   } catch (e) {
+      //     this.$message(e.message);
+      //   }
+      //   loading.close();
     },
   },
 };
