@@ -44,25 +44,25 @@ export default {
         this.$message("connect faild");
       }
       console.log("coinPBX?", coin);
-      //   try {
-      const list = await market.getMyTokenList(this.baddr);
-      commit("setUserList", list);
-      console.log("pbcoin", list);
-      const slist = await market.getSaleList();
-      commit("setSaleList", slist);
-      console.log("pbcoinMarket", slist);
+      try {
+        const list = await market.getMyTokenList(this.baddr);
+        commit("setUserList", list);
+        console.log("pbcoin", list);
+        const slist = await market.getSaleList();
+        commit("setSaleList", slist);
+        console.log("pbcoinMarket", slist);
 
-      let mSlist = [];
-      const sl = this.$store.state.saleList;
-      for (let i = 0; i < sl.length; i++) {
-        if (sl[i].seller == true) {
-          mSlist.push(sl[i]);
-          commit("setMySaleList", mSlist);
+        let mSlist = [];
+        const sl = this.$store.state.saleList;
+        for (let i = 0; i < sl.length; i++) {
+          if (sl[i].seller == true) {
+            mSlist.push(sl[i]);
+            commit("setMySaleList", mSlist);
+          }
         }
+      } catch (e) {
+        this.$message(e.message);
       }
-      //   } catch (e) {
-      //     this.$message(e.message);
-      //   }
       //   loading.close();
     },
   },

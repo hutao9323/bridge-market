@@ -94,26 +94,17 @@ async function connect(coin, commit) {
         await bsc.provider.send("eth_requestAccounts", [])
         bsc.signer = bsc.provider.getSigner()
         bsc.addr = await bsc.signer.getAddress()
-        console.log(b_addresses)
-        bsc.nft_addr = b_addresses[coin]
-        console.log("nft_addr", bsc.nft_addr)
         bsc.market = new ethers.Contract(bconst.market_address, market_abi, bsc.signer)
         bsc.pb = {}
         bsc.coin = coin
         for (coin in b_addresses) {
-            bsc.pb[coin] = new ethers.Contract(bsc.nft_addr, pb_abi, bsc.signer)
+            bsc.pb[coin] = new ethers.Contract(b_addresses[coin], pb_abi, bsc.signer)
             console.log("bsc.pb" + [coin], bsc.pb[coin])
         }
         console.log("bsc.pb", bsc.pb)
-        if (coin in b_addresses) {
-            console.log("coin", coin)
-            bsc.nft_addr = b_addresses[coin]
-        } else {
+        if (!(coin in b_addresses)) {
             return false
         }
-        // const pb_address = bconst.pbt_address
-        // console.log('pb-addr', pb_address)
-        // bsc.pb = new ethers.Contract(bsc.nft_addr, pb_abi, bsc.signer)
         console.log('market', bsc.market)
         if (commit) {
             commit("setBaddr", bsc.addr)
@@ -145,9 +136,7 @@ async function getUserTokenList(addr) {
             meta: meta,
         }
         if (addr == bconst.market_address) {
-            console.log(bsc.nft_addr)
-
-            const sinfo = await bsc.market.getSaleInfo(bsc.nft_addr, idx)
+            const sinfo = await bsc.market.getSaleInfo(b_addresses[bsc.coin], idx)
             console.log(1)
 
             info.price = ethers.utils.formatEther(sinfo[0])
@@ -181,7 +170,7 @@ async function sendToMarket(id) {
 }
 
 async function setSellInfo(id, price, desc) {
-    const res = await bsc.market.onSale(bsc.nft_addr, id, ethers.utils.parseEther(price), desc)
+    const res = await bsc.market.onSale(b_addresses[bsc.coin], id, ethers.utils.parseEther(price), desc)
     console.log('set sell info receipt', res)
 }
 
@@ -189,14 +178,14 @@ async function setSellInfo(id, price, desc) {
 async function buyNFT(nft) {
     const price = await ethers.utils.parseEther(nft.price)
     const id = ethers.BigNumber.from(nft.id)
-    const res = await bsc.market.buy(bsc.nft_addr, id, {
+    const res = await bsc.market.buy(b_addresses[bsc.coin], id, {
         value: price
     })
     console.log('buy receipt', res)
 }
 
 async function retreatNFT(nft) {
-    const res = await bsc.market.offSale(bsc.nft_addr, nft.id)
+    const res = await bsc.market.offSale(b_addresses[bsc.coin], nft.id)
     console.log('retreat receipt', res)
 }
 
