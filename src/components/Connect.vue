@@ -7,12 +7,48 @@
     </el-col>
     <el-col v-else class="user">
       <el-tabs type="border-card">
-        <p>
-          <span>{{ baddr.substr(0, 6) + "..." + baddr.substr(-4, 4) }}</span>
-        </p>
-        <el-tab-pane label="Market"><SaleList /></el-tab-pane>
-        <el-tab-pane label="My Bag"><MyBag /></el-tab-pane>
-        <el-tab-pane label="My Sale"><MySale /></el-tab-pane>
+        <el-tab-pane>
+          <span slot="label">
+            Market
+            <i>
+              <el-button
+                class="el-icon-refresh"
+                circle
+                size="mini"
+                @click="refreshM"
+              ></el-button>
+            </i>
+          </span>
+          <SaleList />
+        </el-tab-pane>
+        <el-tab-pane>
+          <span slot="label">
+            My Bag
+            <i>
+              <el-button
+                class="el-icon-refresh"
+                circle
+                size="mini"
+                @click="refreshB"
+              ></el-button>
+            </i>
+          </span>
+          <MyBag />
+        </el-tab-pane>
+        <el-tab-pane>
+          <span slot="label">
+            My Sale
+            <i>
+              <el-button
+                class="el-icon-refresh"
+                circle
+                size="mini"
+                @click="refreshS"
+              ></el-button>
+            </i>
+          </span>
+          <MySale />
+        </el-tab-pane>
       </el-tabs>
     </el-col>
   </el-col>
@@ -58,21 +94,64 @@ export default {
       try {
         const list = await market.getMyTokenList(this.baddr);
         this.$store.commit("setUserList", list);
-        console.log("this user list = ", this.$store.state.userList);
         const slist = await market.getSaleList();
         this.$store.commit("setSaleList", slist);
-        console.log("sale", slist);
         let mSlist = [];
         const sl = this.$store.state.saleList;
         for (let i = 0; i < sl.length; i++) {
           if (sl[i].seller == true) {
             mSlist.push(sl[i]);
-            // console.log("my sale list =", mSlist);
             this.$store.commit("setMySaleList", mSlist);
           }
         }
       } catch (e) {
         this.$message(e.message);
+      }
+      loading.close();
+    },
+    refreshM: async function () {
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
+      try {
+        const slist = await market.getSaleList();
+        this.$store.commit("setSaleList", slist);
+        console.log("sale", slist);
+      } catch (e) {
+        this.$message(e.message);
+      }
+      loading.close();
+    },
+    refreshB: async function () {
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
+      const list = await market.getMyTokenList(this.baddr);
+      this.$store.commit("setUserList", list);
+      console.log("this user list = ", this.$store.state.userList);
+      loading.close();
+    },
+    refreshS: async function () {
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
+      const slist = await market.getSaleList();
+      this.$store.commit("setSaleList", slist);
+      console.log("sale", slist);
+      let mSlist = [];
+      const sl = this.$store.state.saleList;
+      for (let i = 0; i < sl.length; i++) {
+        if (sl[i].seller == true) {
+          mSlist.push(sl[i]);
+          // console.log("my sale list =", mSlist);
+          this.$store.commit("setMySaleList", mSlist);
+        }
       }
       loading.close();
     },
