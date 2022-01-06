@@ -26,8 +26,10 @@ Vue.config.productionTip = false
 
 const store = new Vuex.Store({
     state: {
-        coin: "PBT",
+        mcoin: "XCH",
+        bcoin: "PBT",
         baddr: false,
+        blance: 0,
         userList: [],
         saleList: [],
         mySaleList: [],
@@ -37,8 +39,14 @@ const store = new Vuex.Store({
         setBaddr(state, baddr) {
             state.baddr = baddr
         },
-        setCoin(state, coin) {
-            state.coin = coin
+        setBalance(state, balance) {
+            state.balance = balance
+        },
+        setBcoin(state, coin) {
+            state.bcoin = coin
+        },
+        setMcoin(state, coin) {
+            state.mcoin = coin
         },
         setUserList(state, userList) {
             state.userList = userList

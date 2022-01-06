@@ -5,7 +5,10 @@
         connect wallet
       </el-button>
     </el-col>
-    <el-col v-else class="user">
+    <el-col v-else>
+      {{ baddr }}
+    </el-col>
+    <!-- <el-col v-else class="user">
       <el-tabs type="border-card">
         <el-tab-pane>
           <span slot="label">
@@ -50,7 +53,7 @@
           <MySale />
         </el-tab-pane>
       </el-tabs>
-    </el-col>
+    </el-col> -->
   </el-col>
 </template>
 
@@ -61,6 +64,7 @@ import NFTinfo from "./NFTinfo";
 import SaleList from "./SaleList.vue";
 import MyBag from "./MyBag.vue";
 import MySale from "./MySale.vue";
+import connect from "../connect";
 
 export default {
   components: {
@@ -70,7 +74,8 @@ export default {
     MySale,
   },
   computed: mapState({
-    coin: "coin",
+    mcoin: "mcoin",
+    bcoin: "bcoin",
     baddr: "baddr",
     userList: "userList",
     curNFT: "curNFT",
@@ -84,78 +89,13 @@ export default {
   },
   methods: {
     connect_wallet: async function () {
-      const commit = this.$store.commit;
-      const loading = this.$loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200,230,200,0.6)",
-      });
+      const commit = this.$store.state.commit;
+      const state = this.$store.state;
       try {
-        console.log("connect coin", this.$store.state.coin);
-        await market.connect(this.$store.state.coin, commit);
-
-        const list = await market.getMyTokenList(this.baddr);
-        commit("setUserList", list);
-        console.log("list", list);
-
-        const slist = await market.getSaleList();
-        commit("setSaleList", slist);
-        console.log("slist123", slist);
-        let mSlist = [];
-        const sl = this.$store.state.saleList;
-        for (let i = 0; i < sl.length; i++) {
-          if (sl[i].seller == true) {
-            mSlist.push(sl[i]);
-            commit("setMySaleList", mSlist);
-          }
-        }
-        console.log(2);
-      } catch (e) {
-        this.$message(e.message);
+        await connect.connect_wallet(state.bcoin, state.mcoin, commit);
+      } catch (error) {
+        console.log("error", error);
       }
-      loading.close();
-    },
-    refreshM: async function () {
-      const loading = this.$loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200,230,200,0.6)",
-      });
-      try {
-        const slist = await market.getSaleList();
-        this.$store.commit("setSaleList", slist);
-      } catch (e) {
-        this.$message(e.message);
-      }
-      loading.close();
-    },
-    refreshB: async function () {
-      const loading = this.$loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200,230,200,0.6)",
-      });
-      const list = await market.getMyTokenList(this.baddr);
-      this.$store.commit("setUserList", list);
-      loading.close();
-    },
-    refreshS: async function () {
-      const loading = this.$loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200,230,200,0.6)",
-      });
-      const slist = await market.getSaleList();
-      this.$store.commit("setSaleList", slist);
-      let mSlist = [];
-      const sl = this.$store.state.saleList;
-      for (let i = 0; i < sl.length; i++) {
-        if (sl[i].seller == true) {
-          mSlist.push(sl[i]);
-          this.$store.commit("setMySaleList", mSlist);
-        }
-      }
-      loading.close();
     },
   },
 };
