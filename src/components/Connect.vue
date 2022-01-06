@@ -19,16 +19,10 @@ export default {
   components: {
   },
   computed: mapState({
-    mcoin: "mcoin",
-    bcoin: "bcoin",
     baddr: "baddr",
-    userList: "userList",
-    curNFT: "curNFT",
   }),
   data() {
     return {
-      showInfo: false,
-      sall: false,
       loading: false,
     };
   },
@@ -37,7 +31,7 @@ export default {
       const commit = this.$store.state.commit;
       const state = this.$store.state;
       try {
-        await connect.connect_wallet(state.bcoin, state.mcoin, commit);
+        await connect.connect_wallet(commit);
       } catch (error) {
         console.log("error", error);
       }
