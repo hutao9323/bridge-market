@@ -99,30 +99,25 @@ async function connect(coin, commit) {
         bsc.coin = coin
         for (coin in b_addresses) {
             bsc.pb[coin] = new ethers.Contract(b_addresses[coin], pb_abi, bsc.signer)
-            console.log("bsc.pb" + [coin], bsc.pb[coin])
         }
-        console.log("bsc.pb", bsc.pb)
         if (!(coin in b_addresses)) {
             return false
         }
-        console.log('market', bsc.market)
         if (commit) {
             commit("setBaddr", bsc.addr)
             commit("setCoin", coin)
         }
+        // bsc.events = {
+        //     onsale:bsc.market.
+        // }
         return bsc.addr
     }
     return false
 }
 
-async function getMySaleList() {
-    // TODO: show tokens selling by me
-}
-
 async function getUserTokenList(addr) {
     const coin = bsc.coin
     const pb = bsc.pb[coin]
-    console.log("111", addr, pb)
     const cnt = await pb.balanceOf(addr)
     console.log('user', addr, 'has', cnt, 'tokens')
     const list = []
@@ -137,16 +132,10 @@ async function getUserTokenList(addr) {
         }
         if (addr == bconst.market_address) {
             const sinfo = await bsc.market.getSaleInfo(b_addresses[bsc.coin], idx)
-            console.log(1)
-
             info.price = ethers.utils.formatEther(sinfo[0])
-            console.log(2)
-
             info.desc = sinfo[1]
             info.seller = sinfo[2]
             info.owner = 'market'
-            console.log(3)
-
         }
         list.push(info)
     }
@@ -160,6 +149,10 @@ async function getSaleList() {
 
 async function getMyTokenList() {
     return await getUserTokenList(bsc.addr)
+}
+
+async function getMySaleList() {
+    // TODO: show tokens selling by me
 }
 
 async function sendToMarket(id) {

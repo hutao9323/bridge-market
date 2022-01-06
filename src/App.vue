@@ -3,7 +3,7 @@
     <el-container>
       <el-header>
         <el-row type="flex" justify="center" align="middle">
-          <el-col> logo version:1/5 1.2</el-col>
+          <el-col> logo version:1/6 1.1</el-col>
           <el-col :lg="10" :md="10" :sm="10" :xs="10"></el-col>
           <el-col><SelectCoin /></el-col>
           <el-col>

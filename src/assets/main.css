@@ -1,6 +1,6 @@
 /* common style */
 ul li {
-    float: left;
+    /* float: left; */
     list-style: none;
 }
 
@@ -27,6 +27,7 @@ button {
 }
 
 .userW>ul li {
+    float: left;
     width: 100px;
     height: 100px;
     margin: 10px;
@@ -54,25 +55,10 @@ button {
     color: #668b66;
 }
 
-.el-select .el-input__inner:focus {
-    border-color: #d1fcd1;
-}
-
-.el-select .el-input.is-focus .el-input__inner {
-    border-color: #d1fcd1;
-}
-
 .el-select .el-input__inner {
-    background-color: #668b66;
-    color: #d1fcd1;
-    border: #d1fcd1 1px solid;
-    border-radius: 5px;
+    border: #668b66 1px solid;
 }
 
 .el-select:hover .el-input__inner {
     border: #d1fcd1 1px solid;
-}
-
-.el-select .el-input__inner:focus {
-    color: #d1fcd1;
 }

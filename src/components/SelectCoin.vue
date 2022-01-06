@@ -31,11 +31,11 @@ export default {
   },
   methods: {
     connect: async function (coin) {
-      //   const loading = this.loading({
-      //     lock: true,
-      //     spinner: "el-icon-loading",
-      //     background: "rgba(200,230,200,0.6)",
-      //   });
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
       const commit = this.$store.commit;
 
       const addr = await market.connect(coin, commit);
@@ -63,7 +63,7 @@ export default {
       } catch (e) {
         this.$message(e.message);
       }
-      //   loading.close();
+      loading.close();
     },
   },
 };

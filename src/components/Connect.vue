@@ -85,11 +85,11 @@ export default {
   methods: {
     connect_wallet: async function () {
       const commit = this.$store.commit;
-      // const loading = this.$loading({
-      //   lock: true,
-      //   spinner: "el-icon-loading",
-      //   background: "rgba(200,230,200,0.6)",
-      // });
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
       try {
         console.log("connect coin", this.$store.state.coin);
         await market.connect(this.$store.state.coin, commit);
@@ -113,7 +113,7 @@ export default {
       } catch (e) {
         this.$message(e.message);
       }
-      // loading.close();
+      loading.close();
     },
     refreshM: async function () {
       const loading = this.$loading({

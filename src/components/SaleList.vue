@@ -1,14 +1,10 @@
 <template>
   <el-col>
     <el-col v-if="baddr">
-      <el-col>
-        <ul>
-          <li v-for="nft in nftList" :key="nft.token_id">
-            <el-button
-              class="nftlist"
-              @click="openNFT(nft)"
-              v-if="nft.price != 0.0"
-            >
+      <el-col class="userW">
+        <ul v-for="nft in nftList" :key="nft.token_id">
+          <li v-if="nft.price != 0.0">
+            <el-button class="nftlist" @click="openNFT(nft)">
               <img :src="nft.meta.image" />
               <el-badge v-if="nft.seller" value="Mine" class="item">
                 <span>{{ nft.id }}</span>
