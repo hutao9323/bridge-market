@@ -3,10 +3,10 @@
     <el-container>
       <el-header>
         <el-row type="flex" justify="center" align="middle">
-          <el-col> logo version:1/6 1.1</el-col>
+          <el-col> logo version:1/7 1.1</el-col>
           <el-col :lg="10" :md="10" :sm="10" :xs="10"></el-col>
           <el-col>
-            <p v-if="this.baddr">
+            <p v-if="baddr">
               {{ baddr.substr(0, 6) + "..." + baddr.substr(-4, 4) }}
             </p>
             <p v-else>未链接钱包</p>
