@@ -31,6 +31,11 @@ export default {
     curNFT: "curNFT",
     mySaleList: "mySaleList",
   }),
+  watch: {
+    mySaleList: function (newList) {
+      this.$store.commit("setMySaleList", newList);
+    },
+  },
   data() {
     return {
       mysale: false,

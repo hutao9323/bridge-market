@@ -16,7 +16,7 @@
     <el-col class="nftInfo">
       <el-dialog
         title="NFT Info"
-        :visible.sync="nftInfo"
+        :visible.sync="NFTinfo"
         width="50%"
         height="500px"
       >
@@ -37,16 +37,20 @@ export default {
     curNFT: "curNFT",
     userList: "userList",
     coin: "coin",
+    NFTinfo: "NFTinfo",
   }),
+  watch: {
+    userList: function (newList) {
+      this.$store.commit("setUserList", newList);
+    },
+  },
   data() {
-    return {
-      nftInfo: false,
-    };
+    return {};
   },
   methods: {
     openNFT: async function (nft) {
       this.$store.commit("setCurNFT", nft);
-      this.nftInfo = true;
+      this.$store.commit("setNFTinfo", true);
     },
   },
 };

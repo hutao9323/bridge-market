@@ -38,6 +38,11 @@ export default {
     nftDialog: false,
     curNFT: "curNFT",
   }),
+   watch: {
+    SaleList: function (newList) {
+      this.$store.commit("setSaleList", newList);
+    },
+  },
   data() {
     return {
       selling: false,

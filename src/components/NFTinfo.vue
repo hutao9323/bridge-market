@@ -65,11 +65,11 @@ export default {
     userList: "userList",
     nftDialog: false,
     curNFT: "curNFT",
+    NFTinfo: "NFTinfo",
   }),
   data() {
     return {
       priceToken: "BNB",
-      showInfo: true,
       saleDialog: false,
       nftDesc: this.$store.state.curNFT.decs,
       nftPrice: this.$store.state.curNFT.price,
@@ -99,11 +99,11 @@ export default {
         spinner: "el-icon-loading",
         background: "rgba(200,230,200,0.6)",
       });
-      const obj = this
+      const obj = this;
       market.waitSendDone(tx, async function (tx, evt) {
-        await obj.load_lists()
+        await obj.load_lists();
         loading.close();
-        obj.saleDialog = false
+        obj.$store.commit("setNFTinfo", false);
       });
     },
     save: async function () {
