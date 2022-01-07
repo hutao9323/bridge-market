@@ -91,25 +91,26 @@ export default {
         background: "rgba(200,230,200,0.6)",
       });
       try {
-        console.log("connect coin", this.$store.state.coin);
-        await market.connect(this.$store.state.coin, commit);
+        const addr = await market.connect();
+        if(addr){
+            this.$store.commit('setBaddr', addr)
 
-        const list = await market.getMyTokenList(this.baddr);
-        commit("setUserList", list);
-        console.log("list", list);
+            const list = await market.getMyTokenList(this.coin, this.baddr);
+            commit("setUserList", list);
+            console.log("list", list);
 
-        const slist = await market.getSaleList();
-        commit("setSaleList", slist);
-        console.log("slist123", slist);
-        let mSlist = [];
-        const sl = this.$store.state.saleList;
-        for (let i = 0; i < sl.length; i++) {
-          if (sl[i].seller == true) {
-            mSlist.push(sl[i]);
-            commit("setMySaleList", mSlist);
-          }
+            const slist = await market.getSaleList(this.coin);
+            commit("setSaleList", slist);
+            console.log("slist123", slist);
+            let mSlist = [];
+            const sl = this.$store.state.saleList;
+            for (let i = 0; i < sl.length; i++) {
+              if (sl[i].seller == '-self') {
+                mSlist.push(sl[i]);
+                commit("setMySaleList", mSlist);
+              }
+            }
         }
-        console.log(2);
       } catch (e) {
         this.$message(e.message);
       }
@@ -122,7 +123,7 @@ export default {
         background: "rgba(200,230,200,0.6)",
       });
       try {
-        const slist = await market.getSaleList();
+        const slist = await market.getSaleList(this.coin);
         this.$store.commit("setSaleList", slist);
       } catch (e) {
         this.$message(e.message);
@@ -135,7 +136,7 @@ export default {
         spinner: "el-icon-loading",
         background: "rgba(200,230,200,0.6)",
       });
-      const list = await market.getMyTokenList(this.baddr);
+      const list = await market.getMyTokenList(this.coin);
       this.$store.commit("setUserList", list);
       loading.close();
     },
@@ -145,7 +146,7 @@ export default {
         spinner: "el-icon-loading",
         background: "rgba(200,230,200,0.6)",
       });
-      const slist = await market.getSaleList();
+      const slist = await market.getSaleList(this.coin);
       this.$store.commit("setSaleList", slist);
       let mSlist = [];
       const sl = this.$store.state.saleList;

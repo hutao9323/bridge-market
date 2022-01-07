@@ -22,33 +22,43 @@ export default {
     };
   },
   watch: {
-    coinchg: function (new_coin) {
-      this.$store.commit("setCoin", new_coin);
-      if (this.baddr) {
-        this.connect(new_coin);
-      }
-    },
-  },
-  methods: {
-    connect: async function (coin) {
+    coinchg: async function (new_coin) {
       const loading = this.$loading({
         lock: true,
         spinner: "el-icon-loading",
         background: "rgba(200,230,200,0.6)",
       });
-      const commit = this.$store.commit;
-
-      const addr = await market.connect(coin, commit);
-      console.log("addrrr", addr);
-      if (!addr) {
+ 
+      this.$store.commit("setCoin", new_coin);
+      if (this.baddr) {
+          await this.loadList(new_coin) 
+      }
+      loading.close();
+    },
+  },
+  methods: {
+    connect: async function () {
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
+      const addr = await market.connect();
+      if(addr){
+          this.$store.commit('setBaddr', addr)
+          console.log("coinPBX?", coin);
+          await this.loadList(coin)
+      }else{
         this.$message("connect faild");
       }
-      console.log("coinPBX?", coin);
+      loading.close();
+    },
+    loadList: async function (coin){
       try {
-        const list = await market.getMyTokenList(this.baddr);
+        const list = await market.getMyTokenList(coin);
         commit("setUserList", list);
         console.log("pbcoin", list);
-        const slist = await market.getSaleList();
+        const slist = await market.getSaleList(coin);
         commit("setSaleList", slist);
         console.log("pbcoinMarket", slist);
 
@@ -57,14 +67,13 @@ export default {
         for (let i = 0; i < sl.length; i++) {
           if (sl[i].seller == true) {
             mSlist.push(sl[i]);
-            commit("setMySaleList", mSlist);
           }
         }
+        this.$store.commit("setMySaleList", mSlist);
       } catch (e) {
         this.$message(e.message);
       }
-      loading.close();
-    },
+    }
   },
 };
 </script>

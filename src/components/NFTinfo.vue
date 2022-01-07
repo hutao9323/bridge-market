@@ -24,7 +24,7 @@
       </div>
     </div>
     <div v-else>
-      <el-button @click="send">Sale</el-button>
+      <el-button @click="send">Sell</el-button>
     </div>
     <el-dialog :visible.sync="saleDialog" title="Setting" append-to-body center>
       <label for="decription" class="labels">Description</label>
@@ -73,7 +73,7 @@ export default {
     send: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
-      await market.sendToMarket(id);
+      await market.sendToMarket(this.coin,id);
     },
     sell: async function () {
       const curNFT = this.$store.state.curNFT;
@@ -81,15 +81,15 @@ export default {
       if (this.nftPrice === 0 || this.nftPrice == null) {
         this.$message("price is empty");
       }
-      await market.setSellInfo(id, this.nftPrice, this.nftDesc);
+      await market.setSellInfo(this.coin, id, this.nftPrice, this.nftDesc);
     },
     buy: async function () {
       const curNFT = this.$store.state.curNFT;
-      await market.buyNFT(curNFT);
+      await market.buyNFT(this.coin,curNFT);
     },
     retreat: async function () {
       const curNFT = this.$store.state.curNFT;
-      await market.retreatNFT(curNFT);
+      await market.retreatNFT(this.coin,curNFT);
     },
   },
 };
