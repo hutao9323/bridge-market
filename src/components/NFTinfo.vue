@@ -28,7 +28,6 @@
     </div>
     <el-dialog :visible.sync="saleDialog" title="Setting" append-to-body center>
       <label for="decription" class="labels">Description</label>
-
       <el-input
         type="text"
         placeholder="input description"
@@ -77,6 +76,20 @@ export default {
     };
   },
   methods: {
+    load_lists: async function () {
+      const list = await market.getMyTokenList(this.coin, this.baddr);
+      this.$store.commit("setUserList", list);
+      const slist = await market.getSaleList(this.coin);
+      this.$store.commit("setSaleList", slist);
+      let mSlist = [];
+      const sl = this.$store.state.saleList;
+      for (let i = 0; i < sl.length; i++) {
+        if (sl[i].seller == "-self") {
+          mSlist.push(sl[i]);
+        }
+      }
+      this.$store.commit("setMySaleList", mSlist);
+    },
     send: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
@@ -86,8 +99,11 @@ export default {
         spinner: "el-icon-loading",
         background: "rgba(200,230,200,0.6)",
       });
-      market.waitSendDone(tx, function (tx, evt) {
+      const obj = this
+      market.waitSendDone(tx, async function (tx, evt) {
+        await obj.load_lists()
         loading.close();
+        obj.saleDialog = false
       });
     },
     save: async function () {

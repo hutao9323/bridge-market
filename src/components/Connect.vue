@@ -83,6 +83,23 @@ export default {
     };
   },
   methods: {
+    load_lists: async function () {
+      const list = await market.getMyTokenList(this.coin, this.baddr);
+      this.$store.commit("setUserList", list);
+      console.log("list", list);
+
+      const slist = await market.getSaleList(this.coin);
+      this.$store.commit("setSaleList", slist);
+      console.log("slist123", slist);
+      let mSlist = [];
+      const sl = this.$store.state.saleList;
+      for (let i = 0; i < sl.length; i++) {
+        if (sl[i].seller == "-self") {
+          mSlist.push(sl[i]);
+        }
+      }
+      this.$store.commit("setMySaleList", mSlist);
+    },
     connect_wallet: async function () {
       const commit = this.$store.commit;
       const loading = this.$loading({
@@ -94,23 +111,8 @@ export default {
         const addr = await market.connect();
         if (addr) {
           this.$store.commit("setBaddr", addr);
-
-          const list = await market.getMyTokenList(this.coin, this.baddr);
-          commit("setUserList", list);
-          console.log("list", list);
-
-          const slist = await market.getSaleList(this.coin);
-          commit("setSaleList", slist);
-          console.log("slist123", slist);
-          let mSlist = [];
-          const sl = this.$store.state.saleList;
-          for (let i = 0; i < sl.length; i++) {
-            if (sl[i].seller == "-self") {
-              mSlist.push(sl[i]);
-              commit("setMySaleList", mSlist);
-            }
-          }
-        }
+          await this.load_lists()
+       }
       } catch (e) {
         this.$message(e.message);
       }
