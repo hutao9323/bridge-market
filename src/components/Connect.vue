@@ -42,13 +42,9 @@
 <script>
 import { mapState } from "vuex";
 import con from "../connect.js";
-import MySale from "./MySale.vue";
-import SaleList from "./SaleList.vue";
 
 export default {
   components: {
-    MySale,
-    SaleList,
   },
   computed: mapState({
     baddr: "baddr",
