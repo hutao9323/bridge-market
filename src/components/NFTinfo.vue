@@ -39,7 +39,7 @@
       />
       <label for="price" class="labels"
         >Price
-        <el-select>
+        <el-select v-model="priceToken" class="selectToken">
           <el-option key="BNB" label="BNB" value="BNB"></el-option>
           <el-option key="BUSD" label="BUSD" value="BUSD"></el-option>
         </el-select>
@@ -52,7 +52,7 @@
         show-word-limit
         id="price"
       />
-      <el-button @click="sell">Sell</el-button>
+      <el-button @click="save">Save</el-button>
     </el-dialog>
   </el-col>
 </template>
@@ -69,6 +69,7 @@ export default {
   }),
   data() {
     return {
+      priceToken: "BNB",
       showInfo: true,
       saleDialog: false,
       nftDesc: this.$store.state.curNFT.decs,
@@ -79,18 +80,17 @@ export default {
     send: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
-      await market.sendToMarket(this.coin, id);
-      const tx = await market.sendToMarket(this.coin,id);
+      const tx = await market.sendToMarket(this.coin, id);
       const loading = this.$loading({
-          lock: true,
-          spinner: "el-icon-loading",
-          background: "rgba(200,230,200,0.6)",
-      })
-      market.waitSendDone(tx, function (tx,evt){
-           loading.close()
-      })
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
+      market.waitSendDone(tx, function (tx, evt) {
+        loading.close();
+      });
     },
-    sell: async function () {
+    save: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
       if (this.nftPrice === 0 || this.nftPrice == null) {

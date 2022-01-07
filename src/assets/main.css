@@ -12,6 +12,10 @@ button {
     color: #668b66
 }
 
+.selectToken {
+    width: 100px;
+}
+
 /* connect wallet template */
 .user {
     min-height: 200px;
