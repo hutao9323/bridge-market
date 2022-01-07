@@ -59,6 +59,18 @@ async function sendToMarket(coin, id) {
     const pb = coin2pb(coin)
     const res = await pb["safeTransferFrom(address,address,uint256)"](bsc.addr, bsc.ctrs.pbmarket.address, id)
     console.log('transfer receipt', res)
+    return res
+}
+
+async function waitSendDone(tx, done){
+    const ctr = pbwallet.erc721_contract(tx.to)
+    ctr.on(ctr.filters.Transfer, function (evt){
+        if(evt.transactionHash==tx.hash){
+            done(tx,evt)
+            ctr.off(ctr.filters.Transfer)   //TODO: how to deal with overlap txs?
+            console.log('tx confirmed')
+        }
+    })
 }
 
 async function setSellInfo(coin, id, price, desc) {
@@ -93,5 +105,6 @@ export default {
     getSaleList: getSaleList,
     retreatNFT: retreatNFT,
     sendToMarket: sendToMarket,
-    setSellInfo: setSellInfo
+    setSellInfo: setSellInfo,
+    waitSendDone: waitSendDone
 }
