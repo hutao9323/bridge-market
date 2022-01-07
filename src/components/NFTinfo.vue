@@ -80,6 +80,15 @@ export default {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
       await market.sendToMarket(this.coin, id);
+      const tx = await market.sendToMarket(this.coin,id);
+      const loading = this.$loading({
+          lock: true,
+          spinner: "el-icon-loading",
+          background: "rgba(200,230,200,0.6)",
+      })
+      market.waitSendDone(tx, function (tx,evt){
+           loading.close()
+      })
     },
     sell: async function () {
       const curNFT = this.$store.state.curNFT;
