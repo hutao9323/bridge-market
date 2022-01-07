@@ -37,7 +37,13 @@
         show-word-limit
         id="description"
       />
-      <label for="price" class="labels">Price(BNB)</label>
+      <label for="price" class="labels"
+        >Price
+        <el-select>
+          <el-option key="BNB" label="BNB" value="BNB"></el-option>
+          <el-option key="BUSD" label="BUSD" value="BUSD"></el-option>
+        </el-select>
+      </label>
       <el-input
         type="text"
         placeholder="input price"
@@ -73,7 +79,7 @@ export default {
     send: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
-      await market.sendToMarket(this.coin,id);
+      await market.sendToMarket(this.coin, id);
     },
     sell: async function () {
       const curNFT = this.$store.state.curNFT;
@@ -85,11 +91,11 @@ export default {
     },
     buy: async function () {
       const curNFT = this.$store.state.curNFT;
-      await market.buyNFT(this.coin,curNFT);
+      await market.buyNFT(this.coin, curNFT);
     },
     retreat: async function () {
       const curNFT = this.$store.state.curNFT;
-      await market.retreatNFT(this.coin,curNFT);
+      await market.retreatNFT(this.coin, curNFT);
     },
   },
 };

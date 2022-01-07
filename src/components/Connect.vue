@@ -92,24 +92,24 @@ export default {
       });
       try {
         const addr = await market.connect();
-        if(addr){
-            this.$store.commit('setBaddr', addr)
+        if (addr) {
+          this.$store.commit("setBaddr", addr);
 
-            const list = await market.getMyTokenList(this.coin, this.baddr);
-            commit("setUserList", list);
-            console.log("list", list);
+          const list = await market.getMyTokenList(this.coin, this.baddr);
+          commit("setUserList", list);
+          console.log("list", list);
 
-            const slist = await market.getSaleList(this.coin);
-            commit("setSaleList", slist);
-            console.log("slist123", slist);
-            let mSlist = [];
-            const sl = this.$store.state.saleList;
-            for (let i = 0; i < sl.length; i++) {
-              if (sl[i].seller == '-self') {
-                mSlist.push(sl[i]);
-                commit("setMySaleList", mSlist);
-              }
+          const slist = await market.getSaleList(this.coin);
+          commit("setSaleList", slist);
+          console.log("slist123", slist);
+          let mSlist = [];
+          const sl = this.$store.state.saleList;
+          for (let i = 0; i < sl.length; i++) {
+            if (sl[i].seller == "-self") {
+              mSlist.push(sl[i]);
+              commit("setMySaleList", mSlist);
             }
+          }
         }
       } catch (e) {
         this.$message(e.message);
@@ -151,7 +151,7 @@ export default {
       let mSlist = [];
       const sl = this.$store.state.saleList;
       for (let i = 0; i < sl.length; i++) {
-        if (sl[i].seller == true) {
+        if (sl[i].seller == "-self") {
           mSlist.push(sl[i]);
           this.$store.commit("setMySaleList", mSlist);
         }

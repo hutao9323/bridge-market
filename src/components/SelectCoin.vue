@@ -28,10 +28,10 @@ export default {
         spinner: "el-icon-loading",
         background: "rgba(200,230,200,0.6)",
       });
- 
+
       this.$store.commit("setCoin", new_coin);
       if (this.baddr) {
-          await this.loadList(new_coin) 
+        await this.loadList(new_coin);
       }
       loading.close();
     },
@@ -44,17 +44,18 @@ export default {
         background: "rgba(200,230,200,0.6)",
       });
       const addr = await market.connect();
-      if(addr){
-          this.$store.commit('setBaddr', addr)
-          console.log("coinPBX?", coin);
-          await this.loadList(coin)
-      }else{
+      if (addr) {
+        this.$store.commit("setBaddr", addr);
+        console.log("coinPBX?", coin);
+        await this.loadList(coin);
+      } else {
         this.$message("connect faild");
       }
       loading.close();
     },
-    loadList: async function (coin){
+    loadList: async function (coin) {
       try {
+        const commit = this.$store.commit;
         const list = await market.getMyTokenList(coin);
         commit("setUserList", list);
         console.log("pbcoin", list);
@@ -65,7 +66,7 @@ export default {
         let mSlist = [];
         const sl = this.$store.state.saleList;
         for (let i = 0; i < sl.length; i++) {
-          if (sl[i].seller == true) {
+          if (sl[i].seller == "-self") {
             mSlist.push(sl[i]);
           }
         }
@@ -73,7 +74,7 @@ export default {
       } catch (e) {
         this.$message(e.message);
       }
-    }
+    },
   },
 };
 </script>
