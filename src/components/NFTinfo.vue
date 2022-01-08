@@ -5,7 +5,7 @@
       <p>id : {{ curNFT.id }}</p>
 
       <div v-if="curNFT.price">
-        <p>price: {{ curNFT.price }} BNB</p>
+        <p>price: {{ curNFT.price }} {{ curNFT.ptName }}</p>
         <div v-if="curNFT.desc">
           <p>description : {{ curNFT.desc }}</p>
         </div>
@@ -112,7 +112,7 @@ export default {
       if (this.nftPrice === 0 || this.nftPrice == null) {
         this.$message("price is empty");
       }
-      await market.setSellInfo(this.coin, id, this.nftPrice, this.nftDesc);
+      await market.setSellInfo(this.coin, id, this.priceToken, this.nftPrice, this.nftDesc);
     },
     buy: async function () {
       const curNFT = this.$store.state.curNFT;

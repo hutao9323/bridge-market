@@ -6,10 +6,25 @@ import pbwallet from 'pbwallet'
 
 var bsc = {}
 
+const ptAddrs = {
+    'BNB': ethers.constants.AddressZero,
+    'BUSD': ethers.utils.getAddress('0x78867bbeef44f2326bf8ddd1941a4439382ef2a7')
+}
+
 async function connect() {
     bsc = await pbwallet.connect(true)
     if(bsc){
         return bsc.addr
+    }
+    return false
+}
+
+function priceName(token){
+    token = ethers.utils.getAddress(token)
+    for(var k in ptAddrs){
+        if(ethers.utils.getAddress(ptAddrs[k])==token){
+            return k
+        }
     }
     return false
 }
@@ -30,6 +45,7 @@ async function getUserTokenList(pb,addr) {
         if (addr == bsc.ctrs.pbmarket.address) {
             const sinfo = await bsc.ctrs.pbmarket.getSaleInfo(pb.address, idx)
             info.priceToken = sinfo[0]
+            info.ptName = priceName(sinfo[0])
             info.price = ethers.utils.formatEther(sinfo[1])
             info.desc = sinfo[2]
             info.seller = sinfo[3]
@@ -73,23 +89,43 @@ async function waitSendDone(tx, done){
     })
 }
 
-async function setSellInfo(coin, id, price, desc) {
+async function setSellInfo(coin, id, ptName, price, desc) {
     const pb = coin2pb(coin)
-    //TODO: set ERC20 price 
-    console.log('onSale',pb.address, id, ethers.constants.AddressZero, ethers.utils.parseEther(price), desc)
-    const res = await bsc.ctrs.pbmarket.onSale(pb.address, id, ethers.constants.AddressZero, ethers.utils.parseEther(price), desc)
+    var ptAddr = ptAddrs[ptName]
+    if(!ptAddr){
+        ptAddr = ethers.constants.AddressZero
+    }
+    console.log('onSale',pb.address, id, ptAddr, ethers.utils.parseEther(price), desc)
+    const res = await bsc.ctrs.pbmarket.onSale(pb.address, id, ptAddr, ethers.utils.parseEther(price), desc)
     console.log('set sell info receipt', res)
 }
 
 async function buyNFT(coin, nft) {
     const pb = coin2pb(coin)
     const price = await ethers.utils.parseEther(nft.price)
+    const priceToken = nft.priceToken
     const id = ethers.BigNumber.from(nft.id)
-    console.log('buy', pb, id, price)
-    const res = await bsc.ctrs.pbmarket.buy(pb.address, id, {
-        value: price
-    })
-    console.log('buy receipt', res)
+    console.log('buy', pb, id, priceToken, price)
+    const options = {}
+    if(priceToken==ethers.constants.AddressZero){
+        options.value = price
+    }else{
+        // check allowance
+        const ctr = pbwallet.erc20_contract(priceToken)
+        console.log('ctr', priceToken, ctr)
+        const allow = await ctr.allowance(bsc.addr, bsc.ctrs.pbmarket.address)
+        if(allow.lt(price)){    // not enough allowance, approve first
+            const res = await ctr.approve(bsc.ctrs.pbmarket.address, price.mul(1000000))    // TODO: approve can use MAX_UINT256 for infinity
+            res.fn = 'approve'
+            // we need to wait for approve confirmed by BSC network, so return and let user buy again
+            // TODO: show "Approve" in button when allowance not enough, then show "Buy" when allowance enough
+            // TODO: check ERC20 balance then buy
+            return res
+        }
+    }
+    const res = await bsc.ctrs.pbmarket.buy(pb.address, id, options)
+    res.fn = 'buy'
+    return res
 }
 
 async function retreatNFT(coin, nft) {
