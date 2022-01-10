@@ -51,6 +51,13 @@ async function getUserTokenList(pb, addr) {
             info.seller = sinfo[3]
             info.owner = 'market'
         }
+        if(pb === bsc.ctrs.pbt){
+            const pbxs = await bsc.ctrs.pbconnect.getPBXList(info.id)
+            if(pbxs.length>0){
+                console.log('PBX for',info.id, pbxs)
+                info.coinTypes = await bsc.ctrs.pbx.getCoinTypes(pbxs)
+            }
+        }
         list.push(info)
     }
     console.log('token list of', addr, list)
