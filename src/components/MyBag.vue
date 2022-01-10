@@ -19,7 +19,7 @@
         :visible="NFTinfo"
         width="50%"
         height="500px"
-        :show-close="showC"
+        :show-close="false"
         :modal-append-to-body="false"
       >
         <el-card><NFTinfo /></el-card>

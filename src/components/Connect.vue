@@ -110,7 +110,7 @@ export default {
       try {
         const addr = await market.connect();
         if (addr) {
-          this.$store.commit("setBaddr", addr);
+          commit("setBaddr", addr);
           await this.load_lists()
        }
       } catch (e) {

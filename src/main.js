@@ -32,7 +32,8 @@ const store = new Vuex.Store({
         saleList: [],
         mySaleList: [],
         curNFT: {},
-        NFTinfo: false
+        NFTinfo: false,
+        allow: -1
     },
     mutations: {
         setBaddr(state, baddr) {
@@ -55,6 +56,9 @@ const store = new Vuex.Store({
         },
         setNFTinfo(state, boolean) {
             state.NFTinfo = boolean
+        },
+        setAllow(state, allow) {
+            state.allow = allow
         }
     }
 })

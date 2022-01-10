@@ -19,7 +19,7 @@
       <el-dialog
         title="Now Selling"
         :visible="NFTinfo"
-        :show-close="showC"
+        :show-close="false"
         :modal-append-to-body="false"
       >
         <el-card><NFTinfo /></el-card>
@@ -59,8 +59,14 @@ export default {
       if (nft.seller || parseFloat(nft.price) > 0) {
         this.$store.commit("setCurNFT", nft);
         console.log("setCurNFT", this.$store.state.curNFT);
-        // this.selling = true;
         this.$store.commit("setNFTinfo", true);
+        try {
+          const allow = await market.checkAllowance(nft);
+
+          this.$store.commit("setAllow", allow);
+        } catch (e) {
+          console.log(e);
+        }
       } else {
         this.$alert("价格为0,不可购买。请联系卖家修改价格。");
       }

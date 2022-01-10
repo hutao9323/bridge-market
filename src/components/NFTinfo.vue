@@ -22,7 +22,12 @@
           <el-button @click="retreat">Retreat</el-button>
         </div>
         <div v-else>
-          <el-button @click="buy">Buy</el-button>
+          <div v-if="allow < curNFT.price">
+            <el-button @click="approve">approve</el-button>
+          </div>
+          <div v-else>
+            <el-button @click="buy">Buy</el-button>
+          </div>
         </div>
       </div>
       <div v-else>
@@ -75,6 +80,7 @@ export default {
     nftDialog: false,
     curNFT: "curNFT",
     NFTinfo: "NFTinfo",
+    allow: "allow",
   }),
   data() {
     return {
@@ -132,12 +138,19 @@ export default {
         this.nftDesc
       );
     },
+    approve: async function () {
+      await market.approveAllow();
+    },
     buy: async function () {
       const curNFT = this.$store.state.curNFT;
       try {
         await market.buyNFT(this.coin, curNFT);
-      } catch (error) {
-        console.log(e.message);
+      } catch (e) {
+        if (e.data.code === 3) {
+          this.$message(e.data.message);
+        }
+        console.log("errr", e.data.message);
+        // this.$message("error", e.data.message);
       }
     },
     retreat: async function () {

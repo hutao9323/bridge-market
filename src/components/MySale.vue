@@ -16,7 +16,7 @@
       <el-dialog
         title="Selling"
         :visible="NFTinfo"
-        :show-close="showC"
+        :show-close="false"
         :modal-append-to-body="false"
       >
         <el-card><NFTinfo /></el-card>
@@ -44,7 +44,7 @@ export default {
   },
   data() {
     return {
-      showC: false,
+      // showC: false,
     };
   },
   methods: {
