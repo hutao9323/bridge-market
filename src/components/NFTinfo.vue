@@ -108,6 +108,7 @@ export default {
       }
       this.$store.commit("setMySaleList", mSlist);
     },
+    wait: async function () {},
     send: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
@@ -139,7 +140,15 @@ export default {
       );
     },
     approve: async function () {
-      await market.approveAllow();
+      const curNFT = this.$store.state.curNFT;
+      try {
+        await market.approveAllow(curNFT);
+      } catch (e) {
+        if (e.code == 4001) {
+          this.$message(e.message);
+        }
+        console.log("err", e.message);
+      }
     },
     buy: async function () {
       const curNFT = this.$store.state.curNFT;
@@ -155,7 +164,11 @@ export default {
     },
     retreat: async function () {
       const curNFT = this.$store.state.curNFT;
-      await market.retreatNFT(this.coin, curNFT);
+      try {
+        await market.retreatNFT(this.coin, curNFT);
+      } catch (e) {
+        this.$message(e.message);
+      }
     },
   },
 };

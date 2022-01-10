@@ -121,7 +121,11 @@ async function checkAllowance(nft) {
     }
     return allow
 }
-async function approveAllow() {
+async function approveAllow(nft) {
+    const priceToken = nft.priceToken
+
+    const price = await ethers.utils.parseEther(nft.price)
+    const ctr = pbwallet.erc20_contract(priceToken)
     // uint256_MAX, priceToken_ctr.totalSupply()
     const res = await ctr.approve(bsc.ctrs.pbmarket.address, price.mul(1000000))
     res.fn = 'approve'
@@ -143,7 +147,7 @@ async function buyNFT(coin, nft) {
         const allow = await checkAllowance(nft)
         console.log("allow", allow)
         if (allow.lt(price)) { // not enough allowance, approve first
-            const res = await approveAllow()
+            const res = await approveAllow(nft)
             console.log("res", res) // TODO: approve can use MAX_UINT256 for infinity
             res.fn = 'approve'
             // we need to wait for approve confirmed by BSC network, so return and let user buy again
