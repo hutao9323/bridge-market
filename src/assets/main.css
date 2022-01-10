@@ -66,3 +66,11 @@ button {
 .el-select:hover .el-input__inner {
     border: #d1fcd1 1px solid;
 }
+
+.closeInfo {
+    float: right;
+    position: relative;
+    right: -20px;
+    top: -20px;
+    border: none;
+}

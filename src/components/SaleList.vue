@@ -16,7 +16,12 @@
       </el-col>
     </el-col>
     <el-col class="nftInfo">
-      <el-dialog title="Now Selling" :visible.sync="selling">
+      <el-dialog
+        title="Now Selling"
+        :visible="NFTinfo"
+        :show-close="showC"
+        :modal-append-to-body="false"
+      >
         <el-card><NFTinfo /></el-card>
       </el-dialog>
     </el-col>
@@ -37,15 +42,16 @@ export default {
     nftList: "saleList",
     nftDialog: false,
     curNFT: "curNFT",
+    NFTinfo: "NFTinfo",
   }),
-   watch: {
+  watch: {
     SaleList: function (newList) {
       this.$store.commit("setSaleList", newList);
     },
   },
   data() {
     return {
-      selling: false,
+      showC: false,
     };
   },
   methods: {
@@ -53,7 +59,8 @@ export default {
       if (nft.seller || parseFloat(nft.price) > 0) {
         this.$store.commit("setCurNFT", nft);
         console.log("setCurNFT", this.$store.state.curNFT);
-        this.selling = true;
+        // this.selling = true;
+        this.$store.commit("setNFTinfo", true);
       } else {
         this.$alert("价格为0,不可购买。请联系卖家修改价格。");
       }

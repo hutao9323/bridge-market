@@ -16,9 +16,11 @@
     <el-col class="nftInfo">
       <el-dialog
         title="NFT Info"
-        :visible.sync="NFTinfo"
+        :visible="NFTinfo"
         width="50%"
         height="500px"
+        :show-close="showC"
+        :modal-append-to-body="false"
       >
         <el-card><NFTinfo /></el-card>
       </el-dialog>
@@ -45,7 +47,9 @@ export default {
     },
   },
   data() {
-    return {};
+    return {
+      showC: false,
+    };
   },
   methods: {
     openNFT: async function (nft) {

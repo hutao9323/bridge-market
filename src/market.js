@@ -13,23 +13,23 @@ const ptAddrs = {
 
 async function connect() {
     bsc = await pbwallet.connect(true)
-    if(bsc){
+    if (bsc) {
         return bsc.addr
     }
     return false
 }
 
-function priceName(token){
+function priceName(token) {
     token = ethers.utils.getAddress(token)
-    for(var k in ptAddrs){
-        if(ethers.utils.getAddress(ptAddrs[k])==token){
+    for (var k in ptAddrs) {
+        if (ethers.utils.getAddress(ptAddrs[k]) == token) {
             return k
         }
     }
     return false
 }
 
-async function getUserTokenList(pb,addr) {
+async function getUserTokenList(pb, addr) {
     const cnt = await pb.balanceOf(addr)
     console.log('user', addr, 'has', cnt, 'tokens')
     const list = []
@@ -57,10 +57,10 @@ async function getUserTokenList(pb,addr) {
     return list
 }
 
-function coin2pb(coin){
-    if(coin=='PBT') return bsc.ctrs.pbt
-    if(coin=='PBX') return bsc.ctrs.pbx
-    throw new Error('Unsupported coin:'+coin)
+function coin2pb(coin) {
+    if (coin == 'PBT') return bsc.ctrs.pbt
+    if (coin == 'PBX') return bsc.ctrs.pbx
+    throw new Error('Unsupported coin:' + coin)
 }
 
 async function getSaleList(coin) {
@@ -78,12 +78,12 @@ async function sendToMarket(coin, id) {
     return res
 }
 
-async function waitSendDone(tx, done){
+async function waitSendDone(tx, done) {
     const ctr = pbwallet.erc721_contract(tx.to)
-    ctr.on(ctr.filters.Transfer, function (evt){
-        if(evt.transactionHash==tx.hash){
-            done(tx,evt)
-            ctr.off(ctr.filters.Transfer)   //TODO: how to deal with overlap txs?
+    ctr.on(ctr.filters.Transfer, function (evt) {
+        if (evt.transactionHash == tx.hash) {
+            done(tx, evt)
+            ctr.off(ctr.filters.Transfer) //TODO: how to deal with overlap txs?
             console.log('tx confirmed')
         }
     })
@@ -92,10 +92,10 @@ async function waitSendDone(tx, done){
 async function setSellInfo(coin, id, ptName, price, desc) {
     const pb = coin2pb(coin)
     var ptAddr = ptAddrs[ptName]
-    if(!ptAddr){
+    if (!ptAddr) {
         ptAddr = ethers.constants.AddressZero
     }
-    console.log('onSale',pb.address, id, ptAddr, ethers.utils.parseEther(price), desc)
+    console.log('onSale', pb.address, id, ptAddr, ethers.utils.parseEther(price), desc)
     const res = await bsc.ctrs.pbmarket.onSale(pb.address, id, ptAddr, ethers.utils.parseEther(price), desc)
     console.log('set sell info receipt', res)
 }
@@ -107,15 +107,17 @@ async function buyNFT(coin, nft) {
     const id = ethers.BigNumber.from(nft.id)
     console.log('buy', pb, id, priceToken, price)
     const options = {}
-    if(priceToken==ethers.constants.AddressZero){
+    if (priceToken == ethers.constants.AddressZero) {
         options.value = price
-    }else{
+    } else {
         // check allowance
         const ctr = pbwallet.erc20_contract(priceToken)
         console.log('ctr', priceToken, ctr)
         const allow = await ctr.allowance(bsc.addr, bsc.ctrs.pbmarket.address)
-        if(allow.lt(price)){    // not enough allowance, approve first
-            const res = await ctr.approve(bsc.ctrs.pbmarket.address, price.mul(1000000))    // TODO: approve can use MAX_UINT256 for infinity
+        console.log("allow", allow)
+        if (allow.lt(price)) { // not enough allowance, approve first
+            const res = await ctr.approve(bsc.ctrs.pbmarket.address, price.mul(1000000))
+            console.log("res", res) // TODO: approve can use MAX_UINT256 for infinity
             res.fn = 'approve'
             // we need to wait for approve confirmed by BSC network, so return and let user buy again
             // TODO: show "Approve" in button when allowance not enough, then show "Buy" when allowance enough

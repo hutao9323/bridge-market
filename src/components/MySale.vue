@@ -13,7 +13,12 @@
       </el-col>
     </el-col>
     <el-col>
-      <el-dialog title="Selling" :visible.sync="mysale" center>
+      <el-dialog
+        title="Selling"
+        :visible="NFTinfo"
+        :show-close="showC"
+        :modal-append-to-body="false"
+      >
         <el-card><NFTinfo /></el-card>
       </el-dialog>
     </el-col>
@@ -30,6 +35,7 @@ export default {
   computed: mapState({
     curNFT: "curNFT",
     mySaleList: "mySaleList",
+    NFTinfo: "NFTinfo",
   }),
   watch: {
     mySaleList: function (newList) {
@@ -38,14 +44,14 @@ export default {
   },
   data() {
     return {
-      mysale: false,
+      showC: false,
     };
   },
   methods: {
     openNFT: async function (nft) {
       this.$store.commit("setCurNFT", nft);
       console.log("nft", nft.desc);
-      this.mysale = true;
+      this.$store.commit("setNFTinfo", true);
     },
   },
 };

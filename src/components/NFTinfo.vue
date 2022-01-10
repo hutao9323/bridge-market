@@ -1,58 +1,67 @@
 <template>
   <el-col>
-    <img :src="curNFT.meta.image" />
-    <div>
-      <p>id : {{ curNFT.id }}</p>
+    <el-button class="el-icon-close closeInfo" @click="close"></el-button>
+    <el-col>
+      <img :src="curNFT.meta.image" />
+      <div>
+        <p>id : {{ curNFT.id }}</p>
 
-      <div v-if="curNFT.price">
-        <p>price: {{ curNFT.price }} {{ curNFT.ptName }}</p>
-        <div v-if="curNFT.desc">
-          <p>description : {{ curNFT.desc }}</p>
+        <div v-if="curNFT.price">
+          <p>price: {{ curNFT.price }} {{ curNFT.ptName }}</p>
+          <div v-if="curNFT.desc">
+            <p>description : {{ curNFT.desc }}</p>
+          </div>
+          <div v-else>
+            <p>description : nothing</p>
+          </div>
+        </div>
+      </div>
+      <div v-if="curNFT.owner">
+        <div v-if="curNFT.seller">
+          <el-button @click="saleDialog = true">Set Price</el-button>
+          <el-button @click="retreat">Retreat</el-button>
         </div>
         <div v-else>
-          <p>description : nothing</p>
+          <el-button @click="buy">Buy</el-button>
         </div>
       </div>
-    </div>
-    <div v-if="curNFT.owner">
-      <div v-if="curNFT.seller">
-        <el-button @click="saleDialog = true">Set Price</el-button>
-        <el-button @click="retreat">Retreat</el-button>
-      </div>
       <div v-else>
-        <el-button @click="buy">Buy</el-button>
+        <el-button @click="send">Sell</el-button>
       </div>
-    </div>
-    <div v-else>
-      <el-button @click="send">Sell</el-button>
-    </div>
-    <el-dialog :visible.sync="saleDialog" title="Setting" append-to-body center>
-      <label for="decription" class="labels">Description</label>
-      <el-input
-        type="text"
-        placeholder="input description"
-        v-model="nftDesc"
-        maxlength="50"
-        show-word-limit
-        id="description"
-      />
-      <label for="price" class="labels"
-        >Price
-        <el-select v-model="priceToken" class="selectToken">
-          <el-option key="BNB" label="BNB" value="BNB"></el-option>
-          <el-option key="BUSD" label="BUSD" value="BUSD"></el-option>
-        </el-select>
-      </label>
-      <el-input
-        type="text"
-        placeholder="input price"
-        v-model="nftPrice"
-        maxlength="20"
-        show-word-limit
-        id="price"
-      />
-      <el-button @click="save">Save</el-button>
-    </el-dialog>
+
+      <el-dialog
+        :visible.sync="saleDialog"
+        title="Setting"
+        :append-to-body="true"
+        center
+      >
+        <label for="decription" class="labels">Description</label>
+        <el-input
+          type="text"
+          placeholder="input description"
+          v-model="nftDesc"
+          maxlength="50"
+          show-word-limit
+          id="description"
+        />
+        <label for="price" class="labels"
+          >Price
+          <el-select v-model="priceToken" class="selectToken">
+            <el-option key="BNB" label="BNB" value="BNB"></el-option>
+            <el-option key="BUSD" label="BUSD" value="BUSD"></el-option>
+          </el-select>
+        </label>
+        <el-input
+          type="text"
+          placeholder="input price"
+          v-model="nftPrice"
+          maxlength="20"
+          show-word-limit
+          id="price"
+        />
+        <el-button @click="save">Save</el-button>
+      </el-dialog>
+    </el-col>
   </el-col>
 </template>
 <script>
@@ -76,6 +85,9 @@ export default {
     };
   },
   methods: {
+    close: function () {
+      this.$store.commit("setNFTinfo", false);
+    },
     load_lists: async function () {
       const list = await market.getMyTokenList(this.coin, this.baddr);
       this.$store.commit("setUserList", list);
@@ -112,11 +124,21 @@ export default {
       if (this.nftPrice === 0 || this.nftPrice == null) {
         this.$message("price is empty");
       }
-      await market.setSellInfo(this.coin, id, this.priceToken, this.nftPrice, this.nftDesc);
+      await market.setSellInfo(
+        this.coin,
+        id,
+        this.priceToken,
+        this.nftPrice,
+        this.nftDesc
+      );
     },
     buy: async function () {
       const curNFT = this.$store.state.curNFT;
-      await market.buyNFT(this.coin, curNFT);
+      try {
+        await market.buyNFT(this.coin, curNFT);
+      } catch (error) {
+        console.log(e.message);
+      }
     },
     retreat: async function () {
       const curNFT = this.$store.state.curNFT;
