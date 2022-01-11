@@ -31,7 +31,7 @@ export default {
 
       this.$store.commit("setCoin", new_coin);
       if (this.baddr) {
-        await this.loadList(new_coin);
+        await this.get_lists(new_coin);
       }
       loading.close();
     },
@@ -47,30 +47,25 @@ export default {
       if (addr) {
         this.$store.commit("setBaddr", addr);
         console.log("coinPBX?", coin);
-        await this.loadList(coin);
+        await this.get_lists(coin);
       } else {
         this.$message("connect faild");
       }
       loading.close();
     },
-    loadList: async function (coin) {
+    get_lists: async function () {
       try {
-        const commit = this.$store.commit;
-        const list = await market.getMyTokenList(coin);
-        commit("setUserList", list);
-        console.log("pbcoin", list);
-        const slist = await market.getSaleList(coin);
-        commit("setSaleList", slist);
-        console.log("pbcoinMarket", slist);
-
+        const list = await market.getMyTokenList(this.coin, this.baddr);
+        const slist = await market.getSaleList(this.coin);
         let mSlist = [];
-        const sl = this.$store.state.saleList;
-        for (let i = 0; i < sl.length; i++) {
-          if (sl[i].seller == "-self") {
-            mSlist.push(sl[i]);
+        for (let i = 0; i < slist.length; i++) {
+          if (slist[i].seller == "-self") {
+            mSlist.push(slist[i]);
           }
         }
-        this.$store.commit("setMySaleList", mSlist);
+        const lists = [];
+        lists.push(list, slist, mSlist);
+        this.$store.commit("setNFTlists", lists);
       } catch (e) {
         this.$message(e.message);
       }
