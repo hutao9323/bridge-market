@@ -73,6 +73,7 @@ export default {
     MySale,
   },
   computed: mapState({
+    coin: "coin",
     baddr: "baddr",
     curNFT: "curNFT",
     PBTlists: "PBTlists",
@@ -96,8 +97,8 @@ export default {
   },
   methods: {
     get_lists: async function () {
-      const list = await market.getMyTokenList(this.coin, this.baddr);
-      const slist = await market.getSaleList(this.coin);
+      const list = await market.getMyTokenList("PBT", this.baddr);
+      const slist = await market.getSaleList("PBT");
       let mSlist = [];
       for (let i = 0; i < slist.length; i++) {
         if (slist[i].seller == "-self") {
@@ -160,18 +161,9 @@ export default {
         this.$message(e.message);
         loading.close();
       }
-      console.log("0000");
+      loading.close();
     },
-    connect_wallet: async function () {
-      try {
-        const commit = this.$store.commit;
-        const bsc = await con.connect_wallet();
-        commit("setBaddr", bsc.addr);
-        this.getlist();
-      } catch (error) {
-        console.log("error", error);
-      }
-    },
+
     openItem: function (item) {
       this.diaNFT = true;
       this.$store.commit("setCurNFT", item);
@@ -179,7 +171,7 @@ export default {
     sell: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
-      await con.sendToMarket(id);
+      await market.sendToMarket(id);
     },
 
     mintNFT: async function () {
