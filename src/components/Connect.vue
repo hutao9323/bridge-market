@@ -73,9 +73,7 @@ export default {
     MySale,
   },
   computed: mapState({
-    coin: "coin",
     baddr: "baddr",
-    userList: "userList",
     curNFT: "curNFT",
     PBTlists: "PBTlists",
     PBXlists: "PBXlists",
@@ -90,9 +88,10 @@ export default {
   },
   data() {
     return {
-      showInfo: false,
-      sall: false,
       loading: false,
+      openMint: false,
+      diaNFT: false,
+      bbb: 0,
     };
   },
   methods: {
@@ -161,7 +160,33 @@ export default {
         this.$message(e.message);
         loading.close();
       }
-      loading.close();
+      console.log("0000");
+    },
+    connect_wallet: async function () {
+      try {
+        const commit = this.$store.commit;
+        const bsc = await con.connect_wallet();
+        commit("setBaddr", bsc.addr);
+        this.getlist();
+      } catch (error) {
+        console.log("error", error);
+      }
+    },
+    openItem: function (item) {
+      this.diaNFT = true;
+      this.$store.commit("setCurNFT", item);
+    },
+    sell: async function () {
+      const curNFT = this.$store.state.curNFT;
+      const id = curNFT.id;
+      await con.sendToMarket(id);
+    },
+
+    mintNFT: async function () {
+      //铸造NFT====PBT
+    },
+    refreshList: async function () {
+      this.getlist();
     },
   },
 };

@@ -25,7 +25,8 @@ Vue.config.productionTip = false
 
 const store = new Vuex.Store({
     state: {
-        coin: "PBT",
+        mcoin: "XCH",
+        bcoin: "PBT",
         baddr: false,
         curNFT: {},
         NFTinfo: false,
@@ -40,8 +41,14 @@ const store = new Vuex.Store({
         setBaddr(state, baddr) {
             state.baddr = baddr
         },
-        setCoin(state, coin) {
-            state.coin = coin
+        setBalance(state, balance) {
+            state.balance = balance
+        },
+        setBcoin(state, coin) {
+            state.bcoin = coin
+        },
+        setMcoin(state, coin) {
+            state.mcoin = coin
         },
         setCurNFT(state, curNFT) {
             state.curNFT = curNFT

@@ -38,6 +38,12 @@ button {
     float: right;
 }
 
+.userW {
+    height: 200px;
+    border: 1px solid #abcdef;
+
+}
+
 .userW>ul li {
     float: left;
     width: 100px;

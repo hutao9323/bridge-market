@@ -71,7 +71,7 @@
 </template>
 <script>
 import { mapState } from "vuex";
-import market from "../market";
+import con from "../connect";
 export default {
   computed: mapState({
     coin: "coin",

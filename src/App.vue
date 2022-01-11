@@ -7,7 +7,7 @@
           <el-col :lg="10" :md="10" :sm="10" :xs="10"></el-col>
           <!-- <el-col><SelectCoin /></el-col> -->
           <el-col>
-            <p v-if="this.baddr">
+            <p v-if="baddr">
               {{ baddr.substr(0, 6) + "..." + baddr.substr(-4, 4) }}
             </p>
             <p v-else>未链接钱包</p>
@@ -30,15 +30,12 @@
 <script>
 import Connect from "./components/Connect.vue";
 import { mapState } from "vuex";
-import SelectCoin from "./components/SelectCoin.vue";
 export default {
   name: "App",
   components: {
     Connect,
-    SelectCoin,
   },
   computed: mapState({
-    coin: "coin",
     baddr: "baddr",
   }),
 };
