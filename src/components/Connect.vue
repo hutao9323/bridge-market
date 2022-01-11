@@ -13,34 +13,29 @@
             class="el-icon-refresh refresh"
             circle
           ></el-button>
-          <el-tabs type="border-card">
-            <el-tab-pane>
-              <span slot="label">PBT</span>
-              <el-col class="userW">
-                <ul>
-                  <li v-for="nft in PBTlists[0]" :key="nft.token_id">
-                    <el-button class="nftlist" @click="openNFT(nft)">
-                      <img :src="nft.meta.image" />
-                      {{ nft.id }}
-                    </el-button>
-                  </li>
-                </ul>
-              </el-col>
-            </el-tab-pane>
-            <el-tab-pane>
-              <span slot="label">PBX</span>
-              <el-col class="userW">
-                <ul>
-                  <li v-for="nft in PBXlists[0]" :key="nft.token_id">
-                    <el-button class="nftlist" @click="openNFT(nft)">
-                      <img :src="nft.meta.image" />
-                      {{ nft.id }}
-                    </el-button>
-                  </li>
-                </ul>
-              </el-col>
-            </el-tab-pane>
-          </el-tabs>
+          <el-col class="userW">
+            <p>PBT</p>
+            <ul>
+              <li v-for="nft in PBTlists[0]" :key="nft.id">
+                <el-button class="nftlist" @click="openNFT(nft)">
+                  <img :src="nft.meta.image" />
+                  {{ nft.id }}
+                </el-button>
+              </li>
+            </ul>
+            <el-button size="medium">mint</el-button>
+          </el-col>
+          <el-col class="userW">
+            <p>PBT</p>
+            <ul>
+              <li v-for="nft in PBXlists[0]" :key="nft.id">
+                <el-button class="nftlist" @click="openNFT(nft)">
+                  <img :src="nft.meta.image" />
+                  {{ nft.id }}
+                </el-button>
+              </li>
+            </ul>
+          </el-col>
         </el-col>
       </el-col>
       <el-col class="user">
