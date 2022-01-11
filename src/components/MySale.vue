@@ -4,7 +4,7 @@
       <el-col class="userW">
         <!-- <p>{{ coin }}</p> -->
         <ul>
-          <li v-for="nft in mySaleList" :key="nft.id">
+          <li v-for="nft in NFTlists[2]" :key="nft.id">
             <el-button class="nftlist" @click="openNFT(nft)">
               <img :src="nft.meta.image" :alt="nft.id" />{{ nft.id }}</el-button
             >
@@ -34,23 +34,20 @@ export default {
   },
   computed: mapState({
     curNFT: "curNFT",
-    mySaleList: "mySaleList",
     NFTinfo: "NFTinfo",
+    NFTlists: "NFTlists",
   }),
   watch: {
-    mySaleList: function (newList) {
-      this.$store.commit("setMySaleList", newList);
+    NFTlists: function (newList) {
+      this.$store.commit("setNFTlists", newList);
     },
   },
   data() {
-    return {
-      // showC: false,
-    };
+    return {};
   },
   methods: {
     openNFT: async function (nft) {
       this.$store.commit("setCurNFT", nft);
-      console.log("nft", nft.desc);
       this.$store.commit("setNFTinfo", true);
     },
   },

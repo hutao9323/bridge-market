@@ -26,11 +26,9 @@ Vue.config.productionTip = false
 
 const store = new Vuex.Store({
     state: {
+        NFTlists: [],
         coin: "PBT",
         baddr: false,
-        userList: [],
-        saleList: [],
-        mySaleList: [],
         curNFT: {},
         NFTinfo: false,
         allow: -1
@@ -42,15 +40,6 @@ const store = new Vuex.Store({
         setCoin(state, coin) {
             state.coin = coin
         },
-        setUserList(state, userList) {
-            state.userList = userList
-        },
-        setSaleList(state, list) {
-            state.saleList = list
-        },
-        setMySaleList(state, list) {
-            state.mySaleList = list
-        },
         setCurNFT(state, curNFT) {
             state.curNFT = curNFT
         },
@@ -59,12 +48,15 @@ const store = new Vuex.Store({
         },
         setAllow(state, allow) {
             state.allow = allow
+        },
+        setNFTlists(state, list) {
+            // generate MySale, Market, MyBag lists
+            state.NFTlists = list
         }
     }
 })
 
 new Vue({
-
     render: h => h(App),
     store: store,
 }).$mount('#app')

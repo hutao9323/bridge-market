@@ -2,7 +2,7 @@
   <el-col>
     <el-col v-if="baddr">
       <el-col class="userW">
-        <ul v-for="nft in nftList" :key="nft.token_id">
+        <ul v-for="nft in NFTlists[1]" :key="nft.token_id">
           <li v-if="nft.price != 0.0">
             <el-button class="nftlist" @click="openNFT(nft)">
               <img :src="nft.meta.image" />
@@ -39,14 +39,14 @@ export default {
   computed: mapState({
     coin: "coin",
     baddr: "baddr",
-    nftList: "saleList",
     nftDialog: false,
     curNFT: "curNFT",
     NFTinfo: "NFTinfo",
+    NFTlists: "NFTlists",
   }),
   watch: {
-    SaleList: function (newList) {
-      this.$store.commit("setSaleList", newList);
+    NFTlists: function (newList) {
+      this.$store.commit("setNFTlists", newList);
     },
   },
   data() {
@@ -62,7 +62,6 @@ export default {
         this.$store.commit("setNFTinfo", true);
         try {
           const allow = await market.checkAllowance(nft);
-
           this.$store.commit("setAllow", allow);
         } catch (e) {
           console.log(e);

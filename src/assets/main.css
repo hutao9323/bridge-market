@@ -17,9 +17,17 @@ button {
 }
 
 /* connect wallet template */
+.refresh {
+    position: absolute;
+    top: -70px;
+    right: 0px;
+    z-index: 1;
+}
+
 .user {
     min-height: 200px;
     border: 1px solid #abcdef;
+    position: relative;
 }
 
 .user>.el-button {

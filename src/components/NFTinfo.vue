@@ -64,7 +64,7 @@
           show-word-limit
           id="price"
         />
-        <el-button @click="save">Save</el-button>
+        <span slot="footer"> <el-button @click="save">Save</el-button> </span>
       </el-dialog>
     </el-col>
   </el-col>
@@ -94,21 +94,19 @@ export default {
     close: function () {
       this.$store.commit("setNFTinfo", false);
     },
-    load_lists: async function () {
+    get_lists: async function () {
       const list = await market.getMyTokenList(this.coin, this.baddr);
-      this.$store.commit("setUserList", list);
       const slist = await market.getSaleList(this.coin);
-      this.$store.commit("setSaleList", slist);
       let mSlist = [];
-      const sl = this.$store.state.saleList;
-      for (let i = 0; i < sl.length; i++) {
-        if (sl[i].seller == "-self") {
-          mSlist.push(sl[i]);
+      for (let i = 0; i < slist.length; i++) {
+        if (slist[i].seller == "-self") {
+          mSlist.push(slist[i]);
         }
       }
-      this.$store.commit("setMySaleList", mSlist);
+      const lists = [];
+      lists.push(list, slist, mSlist);
+      this.$store.commit("setNFTlists", lists);
     },
-    wait: async function () {},
     send: async function () {
       const curNFT = this.$store.state.curNFT;
       const id = curNFT.id;
@@ -120,7 +118,7 @@ export default {
       });
       const obj = this;
       market.waitSendDone(tx, async function (tx, evt) {
-        await obj.load_lists();
+        await obj.get_lists();
         loading.close();
         obj.$store.commit("setNFTinfo", false);
       });
