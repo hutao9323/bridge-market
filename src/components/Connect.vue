@@ -58,14 +58,10 @@
 import { mapState } from "vuex";
 import market from "../market";
 import NFTinfo from "./NFTinfo";
-// import SaleList from "./SaleList.vue";
-// import MySale from "./MySale.vue";
 
 export default {
   components: {
-    NFTinfo,
-    SaleList,
-    MySale,
+    NFTinfo
   },
   computed: mapState({
     coin: "coin",
