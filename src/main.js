@@ -65,7 +65,7 @@ const store = new Vuex.Store({
         },
         setPBXlists(state, list) {
             // generate MySale, Market, MyBag lists
-            state.PBxlists = list
+            state.PBXlists = list
         }
     }
 })

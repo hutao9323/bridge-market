@@ -16,7 +16,7 @@
           <el-col class="userW">
             <p>PBT</p>
             <ul>
-              <li v-for="nft in PBTlists[0]" :key="nft.id">
+              <li draggable="true" v-for="nft in PBTlists[0]" :key="nft.id">
                 <el-button class="nftlist" @click="openNFT(nft)">
                   <img :src="nft.meta.image" />
                   {{ nft.id }}
@@ -26,10 +26,10 @@
             <el-button size="medium">mint</el-button>
           </el-col>
           <el-col class="userW">
-            <p>PBT</p>
+            <p>PBX</p>
             <ul>
-              <li v-for="nft in PBXlists[0]" :key="nft.id">
-                <el-button class="nftlist" @click="openNFT(nft)">
+              <li v-for="nft in PBXlists[0]" :key="nft.uri">
+                <el-button @click="openNFT(nft)" class="nftlist">
                   <img :src="nft.meta.image" />
                   {{ nft.id }}
                 </el-button>
@@ -38,7 +38,7 @@
           </el-col>
         </el-col>
       </el-col>
-      <el-col class="user">
+      <!-- <el-col class="user">
         <el-tabs type="border-card">
           <el-tab-pane>
             <span slot="label"> Market </span>
@@ -49,7 +49,7 @@
             <MySale />
           </el-tab-pane>
         </el-tabs>
-      </el-col>
+      </el-col> -->
     </el-col>
   </el-col>
 </template>
@@ -58,8 +58,8 @@
 import { mapState } from "vuex";
 import market from "../market";
 import NFTinfo from "./NFTinfo";
-import SaleList from "./SaleList.vue";
-import MySale from "./MySale.vue";
+// import SaleList from "./SaleList.vue";
+// import MySale from "./MySale.vue";
 
 export default {
   components: {
@@ -87,7 +87,6 @@ export default {
       loading: false,
       openMint: false,
       diaNFT: false,
-      bbb: 0,
     };
   },
   methods: {
@@ -103,7 +102,6 @@ export default {
       const tlists = [];
       tlists.push(list, slist, mSlist);
       this.$store.commit("setPBTlists", tlists);
-      console.log("tlists", tlists);
 
       const xlist = await market.getMyTokenList("PBX", this.baddr);
       const xSlist = await market.getSaleList("PBX");
@@ -117,7 +115,7 @@ export default {
       xlists.push(xlist, xSlist, xMSlist);
       this.$store.commit("setPBXlists", xlists);
 
-      console.log("xlists", xlists);
+      console.log("xlists", this.$store.state.PBXlists);
     },
 
     openNFT: async function (nft) {
