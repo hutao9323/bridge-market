@@ -2,7 +2,7 @@
   <el-col>
     <el-col v-if="baddr">
       <el-col class="userW">
-        <ul v-for="nft in NFTlists[1]" :key="nft.token_id">
+        <ul v-for="nft in PBTlists[1]" :key="nft.token_id">
           <li v-if="nft.price != 0.0">
             <el-button class="nftlist" @click="openNFT(nft)">
               <img :src="nft.meta.image" />
@@ -42,11 +42,11 @@ export default {
     nftDialog: false,
     curNFT: "curNFT",
     NFTinfo: "NFTinfo",
-    NFTlists: "NFTlists",
+    PBTlists: "PBTlists",
   }),
   watch: {
-    NFTlists: function (newList) {
-      this.$store.commit("setNFTlists", newList);
+    PBTlists: function (newList) {
+      this.$store.commit("setPBTlists", newList);
     },
   },
   data() {

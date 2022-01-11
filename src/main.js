@@ -12,7 +12,6 @@ import "./assets/main.css"
 // import './assets/js/chia-utils'
 
 import App from './App.vue'
-
 Vue.use(Vuex)
 // Vue.use(LoadScript)
 // Vue.LoadScript("js/chia-utils.js")
@@ -26,12 +25,16 @@ Vue.config.productionTip = false
 
 const store = new Vuex.Store({
     state: {
-        NFTlists: [],
         coin: "PBT",
         baddr: false,
         curNFT: {},
         NFTinfo: false,
-        allow: -1
+        allow: -1,
+        PBTlists: [],
+        PBXlists: [],
+
+
+
     },
     mutations: {
         setBaddr(state, baddr) {
@@ -49,9 +52,13 @@ const store = new Vuex.Store({
         setAllow(state, allow) {
             state.allow = allow
         },
-        setNFTlists(state, list) {
+        setPBTlists(state, list) {
             // generate MySale, Market, MyBag lists
-            state.NFTlists = list
+            state.PBTlists = list
+        },
+        setPBXlists(state, list) {
+            // generate MySale, Market, MyBag lists
+            state.PBxlists = list
         }
     }
 })

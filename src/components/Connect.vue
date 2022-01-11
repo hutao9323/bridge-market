@@ -6,25 +6,55 @@
       </el-button>
     </el-col>
     <el-col v-else class="user">
-      <el-button
-        @click="load_lists"
-        class="el-icon-refresh refresh"
-        circle
-      ></el-button>
-      <el-tabs type="border-card">
-        <el-tab-pane>
-          <span slot="label"> Market </span>
-          <SaleList />
-        </el-tab-pane>
-        <el-tab-pane>
-          <span slot="label"> My Bag </span>
-          <MyBag />
-        </el-tab-pane>
-        <el-tab-pane>
-          <span slot="label"> My Sale </span>
-          <MySale />
-        </el-tab-pane>
-      </el-tabs>
+      <el-col>
+        <el-col>
+          <el-button
+            @click="load_lists"
+            class="el-icon-refresh refresh"
+            circle
+          ></el-button>
+          <el-tabs type="border-card">
+            <el-tab-pane>
+              <span slot="label">PBT</span>
+              <el-col class="userW">
+                <ul>
+                  <li v-for="nft in PBTlists[0]" :key="nft.token_id">
+                    <el-button class="nftlist" @click="openNFT(nft)">
+                      <img :src="nft.meta.image" />
+                      {{ nft.id }}
+                    </el-button>
+                  </li>
+                </ul>
+              </el-col>
+            </el-tab-pane>
+            <el-tab-pane>
+              <span slot="label">PBX</span>
+              <el-col class="userW">
+                <ul>
+                  <li v-for="nft in PBXlists[0]" :key="nft.token_id">
+                    <el-button class="nftlist" @click="openNFT(nft)">
+                      <img :src="nft.meta.image" />
+                      {{ nft.id }}
+                    </el-button>
+                  </li>
+                </ul>
+              </el-col>
+            </el-tab-pane>
+          </el-tabs>
+        </el-col>
+      </el-col>
+      <el-col class="user">
+        <el-tabs type="border-card">
+          <el-tab-pane>
+            <span slot="label"> Market </span>
+            <SaleList />
+          </el-tab-pane>
+          <el-tab-pane>
+            <span slot="label"> My Sale </span>
+            <MySale />
+          </el-tab-pane>
+        </el-tabs>
+      </el-col>
     </el-col>
   </el-col>
 </template>
@@ -34,14 +64,12 @@ import { mapState } from "vuex";
 import market from "../market";
 import NFTinfo from "./NFTinfo";
 import SaleList from "./SaleList.vue";
-import MyBag from "./MyBag.vue";
 import MySale from "./MySale.vue";
 
 export default {
   components: {
     NFTinfo,
     SaleList,
-    MyBag,
     MySale,
   },
   computed: mapState({
@@ -49,11 +77,15 @@ export default {
     baddr: "baddr",
     userList: "userList",
     curNFT: "curNFT",
-    NFTlists: "NFTlists",
+    PBTlists: "PBTlists",
+    PBXlists: "PBXlists",
   }),
   watch: {
-    NFTlists: function (newLists) {
-      this.$store.commit("setNFTlists", newLists);
+    PBTlists: function (newLists) {
+      this.$store.commit("setPBTlists", newLists);
+    },
+    PBXlists: function (newLists) {
+      this.$store.commit("setPBXlists", newLists);
     },
   },
   data() {
@@ -73,10 +105,31 @@ export default {
           mSlist.push(slist[i]);
         }
       }
-      const lists = [];
-      lists.push(list, slist, mSlist);
-      this.$store.commit("setNFTlists", lists);
+      const tlists = [];
+      tlists.push(list, slist, mSlist);
+      this.$store.commit("setPBTlists", tlists);
+      console.log("tlists", tlists);
+
+      const xlist = await market.getMyTokenList("PBX", this.baddr);
+      const xSlist = await market.getSaleList("PBX");
+      let xMSlist = [];
+      for (let i = 0; i < xSlist.length; i++) {
+        if (xSlist[i].seller == "-self") {
+          xMSlist.push(xSlist[i]);
+        }
+      }
+      const xlists = [];
+      xlists.push(xlist, xSlist, xMSlist);
+      this.$store.commit("setPBXlists", xlists);
+
+      console.log("xlists", xlists);
     },
+
+    openNFT: async function (nft) {
+      this.$store.commit("setCurNFT", nft);
+      this.$store.commit("setNFTinfo", true);
+    },
+
     load_lists: async function () {
       const loading = this.$loading({
         lock: true,
@@ -87,6 +140,7 @@ export default {
         await this.get_lists();
       } catch (e) {
         this.$message(e.message);
+        loading.close();
       }
       loading.close();
     },
@@ -102,10 +156,10 @@ export default {
         if (addr) {
           commit("setBaddr", addr);
           await this.get_lists();
-          console.log("nftlists", this.NFTlists);
         }
       } catch (e) {
         this.$message(e.message);
+        loading.close();
       }
       loading.close();
     },
