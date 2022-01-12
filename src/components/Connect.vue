@@ -16,7 +16,13 @@
           <el-col class="userW">
             <p>PBT</p>
             <ul>
-              <li draggable="true" v-for="nft in PBTlists[0]" :key="nft.id">
+              <li
+                draggable="true"
+                @dragstart="dragstart($event, nft)"
+                @dragend="dragend"
+                v-for="nft in PBTlists[0]"
+                :key="nft.id"
+              >
                 <el-button class="nftlist" @click="openNFT(nft)">
                   <img :src="nft.meta.image" />
                   {{ nft.id }}
@@ -28,10 +34,16 @@
           <el-col class="userW">
             <p>PBX</p>
             <ul>
-              <li v-for="nft in PBXlists[0]" :key="nft.uri">
+              <li
+                v-for="nft in PBXlists[0]"
+                :key="nft.uri"
+                @drop="drop"
+                @dragover.prevent
+              >
                 <el-button @click="openNFT(nft)" class="nftlist">
                   <img :src="nft.meta.image" />
                   {{ nft.id }}
+                  <p v-if="dragData">{{ dragData }}</p>
                 </el-button>
               </li>
             </ul>
@@ -39,9 +51,10 @@
           <el-col><Redeem /> </el-col>
         </el-col>
         <el-dialog title="NFTinfo" :visible.sync="diaNFT">
-          <el-card>
+          <el-card v-if="curNFT && curNFT.meta">
             <img :src="curNFT.meta.image" :alt="curNFT.id" />
             <p>id: {{ curNFT.id }}</p>
+            <p>{{ dragData }}</p>
           </el-card>
         </el-dialog>
       </el-col>
@@ -79,9 +92,19 @@ export default {
       openMint: false,
       diaNFT: false,
       rAmount: 0,
+      dragData: null,
     };
   },
   methods: {
+    dragstart: function (event, nft) {
+      event.dataTransfer.setData("nft", nft.id);
+    },
+    drop: function (event) {
+      this.dragData = event.dataTransfer.getData("nft");
+    },
+    dragend: function (event) {
+      event.dataTransfer.clearData();
+    },
     get_lists: async function () {
       const list = await market.getMyTokenList("PBT", this.baddr);
       const slist = await market.getSaleList("PBT");
