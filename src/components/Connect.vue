@@ -17,7 +17,7 @@
             <p>PBT</p>
             <ul>
               <li draggable="true" v-for="nft in PBTlists[0]" :key="nft.id">
-                <el-button class="nftlist" @click="openNFT(nft)">
+                <el-button v-if="nft.meta" class="nftlist" @click="openNFT(nft)">
                   <img :src="nft.meta.image" />
                   {{ nft.id }}
                 </el-button>
@@ -29,7 +29,7 @@
             <p>PBX</p>
             <ul>
               <li v-for="nft in PBXlists[0]" :key="nft.uri">
-                <el-button @click="openNFT(nft)" class="nftlist">
+                <el-button v-if="nft.meta" @click="openNFT(nft)" class="nftlist">
                   <img :src="nft.meta.image" />
                   {{ nft.id }}
                 </el-button>
@@ -39,7 +39,7 @@
           <el-col><Redeem /> </el-col>
         </el-col>
         <el-dialog title="NFTinfo" :visible.sync="diaNFT">
-          <el-card>
+          <el-card v-if="curNFT&&curNFT.meta">
             <img :src="curNFT.meta.image" :alt="curNFT.id" />
             <p>id: {{ curNFT.id }}</p>
           </el-card>
@@ -83,31 +83,19 @@ export default {
   },
   methods: {
     get_lists: async function () {
-      const list = await market.getMyTokenList("PBT", this.baddr);
-      const slist = await market.getSaleList("PBT");
-      let mSlist = [];
-      for (let i = 0; i < slist.length; i++) {
-        if (slist[i].seller == "-self") {
-          mSlist.push(slist[i]);
-        }
-      }
-      const tlists = [];
-      tlists.push(list, slist, mSlist);
-      this.$store.commit("setPBTlists", tlists);
+      const tlist = await market.getMyTokenList("PBT", this.baddr);
+      this.$store.commit("setPBTlists", tlist);
 
       const xlist = await market.getMyTokenList("PBX", this.baddr);
-      const xSlist = await market.getSaleList("PBX");
-      let xMSlist = [];
-      for (let i = 0; i < xSlist.length; i++) {
-        if (xSlist[i].seller == "-self") {
-          xMSlist.push(xSlist[i]);
-        }
-      }
-      const xlists = [];
-      xlists.push(xlist, xSlist, xMSlist);
-      this.$store.commit("setPBXlists", xlists);
+      this.$store.commit("setPBXlists", xlist);
 
       console.log("xlists", this.$store.state.PBXlists);
+
+      const oldToken = '0x134315EF3D11eEd8159fD1305af32119a046375A'
+      const otBalance = await market.tokenBalance(oldToken)
+      const otAllowance = await market.tokenAllowance(oldToken)
+      this.$store.commit('setRedeemBalance', otBalance)
+      this.$store.commit('setRedeemAllowance', otAllowance)
     },
 
     openNFT: async function (nft) {

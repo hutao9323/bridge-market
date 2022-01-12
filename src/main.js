@@ -16,11 +16,7 @@ Vue.use(Vuex)
 // Vue.use(LoadScript)
 // Vue.LoadScript("js/chia-utils.js")
 Vue.use(ElementUI)
-// Vue.use(VueClipboard)
-// Vue.component('pulse-loader', PulseLoader)
 Vue.config.productionTip = false
-
-
 
 
 const store = new Vuex.Store({
@@ -33,9 +29,8 @@ const store = new Vuex.Store({
         allow: -1,
         PBTlists: [],
         PBXlists: [],
-
-
-
+        redeemBalance: "0",
+        redeemAllowance: "0"
     },
     mutations: {
         setBaddr(state, baddr) {
@@ -66,6 +61,12 @@ const store = new Vuex.Store({
         setPBXlists(state, list) {
             // generate MySale, Market, MyBag lists
             state.PBXlists = list
+        },
+        setRedeemBalance(state, balance) {
+            state.redeemBalance = balance
+        },
+        setRedeemAllowance(state, allowance) {
+            state.redeemAllowance = allowance
         }
     }
 })
