@@ -17,15 +17,20 @@
             <p>PBT</p>
             <ul>
               <li
-                draggable="true"
-                @dragstart="dragstart($event, nft)"
-                @dragend="dragend"
+                @drop="drop($event, nft)"
+                @dragover.prevent
                 v-for="nft in PBTlists"
                 :key="nft.id"
               >
                 <el-button class="nftlist" @click="openNFT(nft)">
+                  <span>{{ nft.id }}</span>
                   <img v-if="nft.meta" :src="nft.meta.image" />
-                  {{ nft.id }}
+                  <el-badge
+                    v-if="nft.coinTypes"
+                    :value="nft.coinTypes.length"
+                    class="item"
+                  >
+                  </el-badge>
                 </el-button>
               </li>
             </ul>
@@ -37,13 +42,13 @@
               <li
                 v-for="nft in PBXlists"
                 :key="nft.uri"
-                @drop="drop"
-                @dragover.prevent
+                @dragstart="dragstart($event, nft)"
+                @dragend="dragend"
+                draggable="true"
               >
                 <el-button @click="openNFT(nft)" class="nftlist">
                   <img v-if="nft.meta" :src="nft.meta.image" />
                   {{ nft.id }}
-                  <p v-if="dragData">{{ dragData }}</p>
                 </el-button>
               </li>
             </ul>
@@ -54,7 +59,19 @@
           <el-card v-if="curNFT && curNFT.meta">
             <img :src="curNFT.meta.image" :alt="curNFT.id" />
             <p>id: {{ curNFT.id }}</p>
-            <p>{{ dragData }}</p>
+            <el-col v-if="curNFT.coinTypes">
+              <p>bound:</p>
+              <p v-if="curNFT.coinTypes == 3">
+                PBXBound:<span>Chives(XCC)</span>
+              </p>
+              <p v-if="curNFT.coinTypes == 2">
+                PBXBound:<span>HDDcoin(HDD)</span>
+              </p>
+              <p v-if="curNFT.coinTypes == 1">
+                PBXBound:<span>Chia(XCH)</span>
+              </p>
+              <el-button @click="unbind">Unbinding</el-button>
+            </el-col>
           </el-card>
         </el-dialog>
       </el-col>
@@ -97,14 +114,21 @@ export default {
   },
   methods: {
     dragstart: function (event, nft) {
-      event.dataTransfer.setData("nft", nft.id);
+      console.log("pbx id = ", nft.id);
     },
-    drop: function (event) {
+    drop: async function (event, nft) {
       this.dragData = event.dataTransfer.getData("nft");
+      const pbtId = this.dragData;
+      try {
+        await market.bindTX(pbtId, nft);
+      } catch (e) {
+        console.log("drop error", e.message);
+      }
     },
     dragend: function (event) {
       event.dataTransfer.clearData();
     },
+    unbind: async function () {},
     get_lists: async function () {
       const tlist = await market.getMyTokenList("PBT", this.baddr);
       this.$store.commit("setPBTlists", tlist);
@@ -158,11 +182,6 @@ export default {
         loading.close();
       }
       loading.close();
-    },
-
-    openItem: function (item) {
-      this.diaNFT = true;
-      this.$store.commit("setCurNFT", item);
     },
 
     mintNFT: async function () {

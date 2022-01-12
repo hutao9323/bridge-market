@@ -14,8 +14,11 @@ const ptAddrs = {
 async function connect() {
     bsc = await pbwallet.connect(true)
     if (bsc) {
+        console.log("bsc", bsc)
+
         return bsc.addr
     }
+    console.log("bsc", bsc)
     return false
 }
 
@@ -45,8 +48,9 @@ async function getUserTokenList(pb, addr) {
         if (pb === bsc.ctrs.pbt) {
             const pbxs = await bsc.ctrs.pbconnect.getPBXList(info.id)
             if (pbxs.length > 0) {
-                console.log('PBX for', info.id, pbxs)
                 info.coinTypes = await bsc.ctrs.pbx.getCoinTypes(pbxs)
+                console.log('pnnnnnnn', info.id, pbxs, info.coinTypes)
+
             }
         }
         list.push(info)
@@ -65,7 +69,7 @@ async function getMyTokenList(coin) {
     return await getUserTokenList(coin2pb(coin), bsc.addr)
 }
 
-async function tokenBalance(tokenAddr){
+async function tokenBalance(tokenAddr) {
     const ctr = pbwallet.erc20_contract(tokenAddr)
     const balance = await ctr.balanceOf(bsc.addr)
     console.log('token balance', tokenAddr, balance)
@@ -73,7 +77,7 @@ async function tokenBalance(tokenAddr){
     return ethers.utils.formatUnits(balance, decimals)
 }
 
-async function tokenAllowance(tokenAddr){
+async function tokenAllowance(tokenAddr) {
     const ctr = pbwallet.erc20_contract(tokenAddr)
     const allowance = await ctr.allowance(bsc.addr, bsc.ctrs.tokenredeem.address)
     const decimals = await ctr.decimals()
@@ -81,22 +85,39 @@ async function tokenAllowance(tokenAddr){
     return ethers.utils.formatUnits(allowance, decimals)
 }
 
-async function tokenApprove(tokenAddr){
+async function tokenApprove(tokenAddr) {
     const ctr = pbwallet.erc20_contract(tokenAddr)
     const supply = await ctr.totalSupply()
-    await ctr.approve(bsc.ctrs.tokenredeem.address, supply.mul(1000))   // 1000x total supply, almost infinite
+    await ctr.approve(bsc.ctrs.tokenredeem.address, supply.mul(1000)) // 1000x total supply, almost infinite
 }
 
-async function tokenRedeem(tokenAddr, amount){
+async function tokenRedeem(tokenAddr, amount) {
     const ctr = pbwallet.erc20_contract(tokenAddr)
     const decimals = await ctr.decimals()
-    amount = ethers.utils.parseUnits(amount,decimals)
+    amount = ethers.utils.parseUnits(amount, decimals)
     console.log('redeem amount', amount)
     await bsc.ctrs.tokenredeem.redeem(tokenAddr, amount)
 }
-
+async function bindTX(id, nft) {
+    const pbtId = ethers.utils.hexZeroPad(ethers.utils.hexValue(ethers.BigNumber.from(nft.id)), 32)
+    console.log("pbtid", pbtId, "pbx", id)
+    try {
+        const res = await bsc.ctrs.pbx["safeTransferFrom(address,address,uint256,bytes)"](bsc.addr, bsc.ctrs.pbconnect.address, id, pbtId)
+        console.log('bindTX receive', res)
+    } catch (e) {
+        console.log("bind error", e.message)
+    }
+}
+//查询绑定关系 PBT--PBX 
+async function sesrchlist() {
+    
+}
+async function onbound() {
+    
+}
 export default {
     connect: connect,
+    bindTX: bindTX,
     getMyTokenList: getMyTokenList,
     tokenAllowance: tokenAllowance,
     tokenApprove: tokenApprove,
