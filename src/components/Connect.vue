@@ -36,20 +36,15 @@
               </li>
             </ul>
           </el-col>
+          <el-col><Redeem /> </el-col>
         </el-col>
+        <el-dialog title="NFTinfo" :visible.sync="diaNFT">
+          <el-card>
+            <img :src="curNFT.meta.image" :alt="curNFT.id" />
+            <p>id: {{ curNFT.id }}</p>
+          </el-card>
+        </el-dialog>
       </el-col>
-      <!-- <el-col class="user">
-        <el-tabs type="border-card">
-          <el-tab-pane>
-            <span slot="label"> Market </span>
-            <SaleList />
-          </el-tab-pane>
-          <el-tab-pane>
-            <span slot="label"> My Sale </span>
-            <MySale />
-          </el-tab-pane>
-        </el-tabs>
-      </el-col> -->
     </el-col>
   </el-col>
 </template>
@@ -57,11 +52,11 @@
 <script>
 import { mapState } from "vuex";
 import market from "../market";
-import NFTinfo from "./NFTinfo";
+import Redeem from "./Redeem.vue";
 
 export default {
   components: {
-    NFTinfo
+    Redeem,
   },
   computed: mapState({
     coin: "coin",
@@ -83,6 +78,7 @@ export default {
       loading: false,
       openMint: false,
       diaNFT: false,
+      rAmount: 0,
     };
   },
   methods: {
@@ -116,7 +112,7 @@ export default {
 
     openNFT: async function (nft) {
       this.$store.commit("setCurNFT", nft);
-      this.$store.commit("setNFTinfo", true);
+      this.diaNFT = true;
     },
 
     load_lists: async function () {
@@ -157,17 +153,12 @@ export default {
       this.diaNFT = true;
       this.$store.commit("setCurNFT", item);
     },
-    sell: async function () {
-      const curNFT = this.$store.state.curNFT;
-      const id = curNFT.id;
-      await market.sendToMarket(id);
-    },
 
     mintNFT: async function () {
       //铸造NFT====PBT
     },
     refreshList: async function () {
-      this.getlist();
+      await this.getlist();
     },
   },
 };
