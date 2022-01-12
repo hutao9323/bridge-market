@@ -106,31 +106,19 @@ export default {
       event.dataTransfer.clearData();
     },
     get_lists: async function () {
-      const list = await market.getMyTokenList("PBT", this.baddr);
-      const slist = await market.getSaleList("PBT");
-      let mSlist = [];
-      for (let i = 0; i < slist.length; i++) {
-        if (slist[i].seller == "-self") {
-          mSlist.push(slist[i]);
-        }
-      }
-      const tlists = [];
-      tlists.push(list, slist, mSlist);
-      this.$store.commit("setPBTlists", tlists);
+      const tlist = await market.getMyTokenList("PBT", this.baddr);
+      this.$store.commit("setPBTlists", tlist);
 
       const xlist = await market.getMyTokenList("PBX", this.baddr);
-      const xSlist = await market.getSaleList("PBX");
-      let xMSlist = [];
-      for (let i = 0; i < xSlist.length; i++) {
-        if (xSlist[i].seller == "-self") {
-          xMSlist.push(xSlist[i]);
-        }
-      }
-      const xlists = [];
-      xlists.push(xlist, xSlist, xMSlist);
-      this.$store.commit("setPBXlists", xlists);
+      this.$store.commit("setPBXlists", xlist);
 
       console.log("xlists", this.$store.state.PBXlists);
+
+      const oldToken = '0x134315EF3D11eEd8159fD1305af32119a046375A'
+      const otBalance = await market.tokenBalance(oldToken)
+      const otAllowance = await market.tokenAllowance(oldToken)
+      this.$store.commit('setRedeemBalance', otBalance)
+      this.$store.commit('setRedeemAllowance', otAllowance)
     },
 
     openNFT: async function (nft) {
