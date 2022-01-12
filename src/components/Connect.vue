@@ -20,11 +20,11 @@
                 draggable="true"
                 @dragstart="dragstart($event, nft)"
                 @dragend="dragend"
-                v-for="nft in PBTlists[0]"
+                v-for="nft in PBTlists"
                 :key="nft.id"
               >
                 <el-button class="nftlist" @click="openNFT(nft)">
-                  <img :src="nft.meta.image" />
+                  <img v-if="nft.meta" :src="nft.meta.image" />
                   {{ nft.id }}
                 </el-button>
               </li>
@@ -35,13 +35,13 @@
             <p>PBX</p>
             <ul>
               <li
-                v-for="nft in PBXlists[0]"
+                v-for="nft in PBXlists"
                 :key="nft.uri"
                 @drop="drop"
                 @dragover.prevent
               >
                 <el-button @click="openNFT(nft)" class="nftlist">
-                  <img :src="nft.meta.image" />
+                  <img v-if="nft.meta" :src="nft.meta.image" />
                   {{ nft.id }}
                   <p v-if="dragData">{{ dragData }}</p>
                 </el-button>
@@ -114,11 +114,11 @@ export default {
 
       console.log("xlists", this.$store.state.PBXlists);
 
-      const oldToken = '0x134315EF3D11eEd8159fD1305af32119a046375A'
-      const otBalance = await market.tokenBalance(oldToken)
-      const otAllowance = await market.tokenAllowance(oldToken)
-      this.$store.commit('setRedeemBalance', otBalance)
-      this.$store.commit('setRedeemAllowance', otAllowance)
+      const oldToken = "0x134315EF3D11eEd8159fD1305af32119a046375A";
+      const otBalance = await market.tokenBalance(oldToken);
+      const otAllowance = await market.tokenAllowance(oldToken);
+      this.$store.commit("setRedeemBalance", otBalance);
+      this.$store.commit("setRedeemAllowance", otAllowance);
     },
 
     openNFT: async function (nft) {
