@@ -46,7 +46,7 @@ async function getUserTokenList(pb, addr) {
             meta: meta,
         }
         if (pb === bsc.ctrs.pbt) {
-            const pbxs = await bsc.ctrs.pbconnect.getPBXList(info.id)
+            const pbxs = await bsc.ctrs.pbconnect.PBXList(info.id)
 
             if (pbxs.length > 0) {
                 info.coinTypes = await bsc.ctrs.pbx.getCoinTypes(pbxs)
@@ -133,12 +133,10 @@ async function mintPBT() {
 async function sesrchlist() {
 
 }
-async function getPBXaddr(id) {
+async function getPBXaddr(pbtid) {
     try {
-        const pbxlist = await bsc.ctrs.pbconnect.getPBXList(id)
-        const xaddr = await bsc.ctrs.pbx.getInfo(parseInt(pbxlist))
-        console.log("pbx addr", xaddr)
-        return xaddr
+        const addrlist = await bsc.ctrs.pbconnect.XAddressList(pbtid)
+        console.log('addrlist', addrlist)
     } catch (e) {
         console.log("e", e.message)
     }
@@ -147,7 +145,7 @@ async function getPBXaddr(id) {
 async function unbind(pbtid, cointype) {
     const pbconnect = bsc.ctrs.pbconnect
     try {
-        const pbxlist = await pbconnect.getPBXList(pbtid)
+        const pbxlist = await pbconnect.PBXList(pbtid)
         // const cointypes = await bsc.ctrs.pbx.getCoinTypes(pbxlist)
         console.log("pbxlist", pbxlist, typeof pbxlist, "cointypes", cointype)
         for (let i = 0; i < pbxlist.length; i++) {
