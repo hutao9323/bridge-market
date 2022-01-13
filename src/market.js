@@ -47,10 +47,10 @@ async function getUserTokenList(pb, addr) {
         }
         if (pb === bsc.ctrs.pbt) {
             const pbxs = await bsc.ctrs.pbconnect.getPBXList(info.id)
+
             if (pbxs.length > 0) {
                 info.coinTypes = await bsc.ctrs.pbx.getCoinTypes(pbxs)
                 console.log('pnnnnnnn', info.id, pbxs, info.coinTypes)
-
             }
         }
         list.push(info)
@@ -108,12 +108,53 @@ async function bindTX(id, nft) {
         console.log("bind error", e.message)
     }
 }
+async function mintPBT() {
+    try {
+        const mintfee = await bsc.ctrs.pbt.mintFee()
+        console.log("mintfeee", mintfee)
+
+        const receipt = await bsc.ctrs.pbt.mint({
+            value: mintfee
+        })
+        console.log("mint receipt", receipt)
+        // const options = {}
+        // if (mintfee[0] = ethers.constants.AddressZero) {
+        //     options.Value = mintfee[1]
+        // } else {
+        //     const coin = new
+        // }
+    } catch (e) {
+        console.log(e.message)
+    }
+
+
+}
 //查询绑定关系 PBT--PBX 
 async function sesrchlist() {
-    
+
 }
-async function onbound() {
-    
+async function getPBXaddr(id) {
+    try {
+        const pbxlist = await bsc.ctrs.pbconnect.getPBXList(id)
+        const xaddr = bsc.ctrs.pbx.getInfo(parseInt(pbxlist))
+        console.log("pbx addr", xaddr)
+        return xaddr
+    } catch (e) {
+        console.log("e", e.message)
+    }
+}
+// 解除绑定
+async function onbound(id) {
+    const pbconnect = bsc.ctrs.pbconnect
+    try {
+        const pbxlist = await pbconnect.getPBXList(id)
+        const pbxId = parseInt(pbxlist)
+        console.log("pbxid", pbxId)
+        const res = pbconnect.retreat(pbxId)
+        console.log("onbound res", res)
+    } catch (e) {
+        console.log("onbound error", e.message)
+    }
 }
 export default {
     connect: connect,
@@ -123,4 +164,7 @@ export default {
     tokenApprove: tokenApprove,
     tokenBalance: tokenBalance,
     tokenRedeem: tokenRedeem,
+    onbound: onbound,
+    getPBXaddr: getPBXaddr,
+    mintPBT: mintPBT
 }

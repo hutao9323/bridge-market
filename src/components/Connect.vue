@@ -34,7 +34,7 @@
                 </el-button>
               </li>
             </ul>
-            <el-button size="medium">mint</el-button>
+            <el-button size="medium" @click="mintNFT">mint</el-button>
           </el-col>
           <el-col class="userW">
             <p>PBX</p>
@@ -128,7 +128,11 @@ export default {
     dragend: function (event) {
       event.dataTransfer.clearData();
     },
-    unbind: async function () {},
+    unbind: async function (id) {
+      id = this.curNFT.id;
+      const as = await market.onbound(id);
+      console.log("AS", as);
+    },
     get_lists: async function () {
       const tlist = await market.getMyTokenList("PBT", this.baddr);
       this.$store.commit("setPBTlists", tlist);
@@ -148,6 +152,11 @@ export default {
     openNFT: async function (nft) {
       this.$store.commit("setCurNFT", nft);
       this.diaNFT = true;
+      try {
+        await market.getPBXaddr(nft.id);
+      } catch (e) {
+        e.message;
+      }
     },
 
     load_lists: async function () {
@@ -186,6 +195,11 @@ export default {
 
     mintNFT: async function () {
       //铸造NFT====PBT
+      try {
+        await market.mintPBT();
+      } catch (e) {
+        console.log("mint error", e.message);
+      }
     },
     refreshList: async function () {
       await this.getlist();
