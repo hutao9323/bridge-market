@@ -114,13 +114,14 @@ export default {
   },
   methods: {
     dragstart: function (event, nft) {
+      event.dataTransfer.setData("nft", nft.id);
       console.log("pbx id = ", nft.id);
     },
     drop: async function (event, nft) {
       this.dragData = event.dataTransfer.getData("nft");
-      const pbtId = this.dragData;
+      const pbxId = this.dragData;
       try {
-        await market.bindTX(pbtId, nft);
+        await market.bindTX(pbxId, nft);
       } catch (e) {
         console.log("drop error", e.message);
       }

@@ -98,11 +98,11 @@ async function tokenRedeem(tokenAddr, amount) {
     console.log('redeem amount', amount)
     await bsc.ctrs.tokenredeem.redeem(tokenAddr, amount)
 }
-async function bindTX(id, nft) {
-    const pbtId = ethers.utils.hexZeroPad(ethers.utils.hexValue(ethers.BigNumber.from(nft.id)), 32)
-    console.log("pbtid", pbtId, "pbx", id)
+async function bindTX(pbx_id, pbt) {
+    const pbtId = ethers.utils.hexZeroPad(ethers.utils.hexValue(ethers.BigNumber.from(pbt.id)), 32)
+    console.log("pbtid", pbtId, "pbx", pbx_id)
     try {
-        const res = await bsc.ctrs.pbx["safeTransferFrom(address,address,uint256,bytes)"](bsc.addr, bsc.ctrs.pbconnect.address, id, pbtId)
+        const res = await bsc.ctrs.pbx["safeTransferFrom(address,address,uint256,bytes)"](bsc.addr, bsc.ctrs.pbconnect.address, pbx_id, pbtId)
         console.log('bindTX receive', res)
     } catch (e) {
         console.log("bind error", e.message)
