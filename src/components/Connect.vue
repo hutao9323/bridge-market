@@ -61,16 +61,20 @@
             <p>id: {{ curNFT.id }}</p>
             <el-col v-if="curNFT.coinTypes">
               <p>bound:</p>
-              <p v-if="curNFT.coinTypes == 3">
-                PBXBound:<span>Chives(XCC)</span>
-              </p>
-              <p v-if="curNFT.coinTypes == 2">
-                PBXBound:<span>HDDcoin(HDD)</span>
-              </p>
-              <p v-if="curNFT.coinTypes == 1">
-                PBXBound:<span>Chia(XCH)</span>
-              </p>
-              <el-button @click="unbind">Unbinding</el-button>
+              <el-col v-for="coin in curNFT.coinTypes" :key="coin">
+                <p v-if="coin == 3">
+                  PBXBound:<span>Chives(XCC)</span>
+                  <el-button @click="unbind(coin)">Unbind</el-button>
+                </p>
+                <p v-if="coin == 2">
+                  PBXBound:<span>HDDcoin(HDD) </span>
+                  <el-button @click="unbind(coin)">Unbind</el-button>
+                </p>
+                <p v-if="coin == 1">
+                  PBXBound:<span>Chia(XCH)</span>
+                  <el-button @click="unbind(coin)">Unbind</el-button>
+                </p>
+              </el-col>
             </el-col>
           </el-card>
         </el-dialog>
@@ -129,10 +133,17 @@ export default {
     dragend: function (event) {
       event.dataTransfer.clearData();
     },
-    unbind: async function (id) {
-      id = this.curNFT.id;
-      const as = await market.onbound(id);
-      console.log("AS", as);
+    unbind: async function (coin) {
+      const pbtid = this.curNFT.id;
+      console.log("unbinddddd", pbtid, coin);
+      try {
+        await market.unbind(pbtid, coin);
+      } catch (e) {
+        if (e.data.code == 3) {
+          console.log("unbind err", e.data.message);
+        }
+        console.log(e.message);
+      }
     },
     get_lists: async function () {
       const tlist = await market.getMyTokenList("PBT", this.baddr);

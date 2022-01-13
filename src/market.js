@@ -136,7 +136,7 @@ async function sesrchlist() {
 async function getPBXaddr(id) {
     try {
         const pbxlist = await bsc.ctrs.pbconnect.getPBXList(id)
-        const xaddr = bsc.ctrs.pbx.getInfo(parseInt(pbxlist))
+        const xaddr = await bsc.ctrs.pbx.getInfo(parseInt(pbxlist))
         console.log("pbx addr", xaddr)
         return xaddr
     } catch (e) {
@@ -144,14 +144,22 @@ async function getPBXaddr(id) {
     }
 }
 // 解除绑定
-async function onbound(id) {
+async function unbind(pbtid, cointype) {
     const pbconnect = bsc.ctrs.pbconnect
     try {
-        const pbxlist = await pbconnect.getPBXList(id)
-        const pbxId = parseInt(pbxlist)
-        console.log("pbxid", pbxId)
-        const res = pbconnect.retreat(pbxId)
-        console.log("onbound res", res)
+        const pbxlist = await pbconnect.getPBXList(pbtid)
+        // const cointypes = await bsc.ctrs.pbx.getCoinTypes(pbxlist)
+        console.log("pbxlist", pbxlist, typeof pbxlist, "cointypes", cointype)
+        for (let i = 0; i < pbxlist.length; i++) {
+            const pbcoin = await bsc.ctrs.pbx.getCoinTypes([pbxlist[i]])
+            console.log("pbcoin", pbcoin)
+            if (pbcoin == cointype) {
+                const pbxid = parseInt(pbxlist[i])
+                console.log("unbinding with pbxID", pbcoin, pbxid)
+                const res = await pbconnect.retreat(pbxid)
+                console.log("unbind res", res)
+            }
+        }
     } catch (e) {
         console.log("onbound error", e.message)
     }
@@ -164,7 +172,7 @@ export default {
     tokenApprove: tokenApprove,
     tokenBalance: tokenBalance,
     tokenRedeem: tokenRedeem,
-    onbound: onbound,
+    unbind: unbind,
     getPBXaddr: getPBXaddr,
     mintPBT: mintPBT
 }
