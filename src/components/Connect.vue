@@ -165,7 +165,8 @@ export default {
       this.$store.commit("setCurNFT", nft);
       this.diaNFT = true;
       try {
-        await market.getPBXaddr(nft.id);
+        const addr = await market.getPBXaddr(nft.id);
+        console.log("pbx addrs", addr);
       } catch (e) {
         e.message;
       }
