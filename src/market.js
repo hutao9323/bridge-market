@@ -111,20 +111,29 @@ async function bindTX(pbx_id, pbt) {
 async function mintPBT() {
     try {
         const mintfee = await bsc.ctrs.pbt.mintFee()
-        console.log("mintfeee", mintfee)
-
-        const receipt = await bsc.ctrs.pbt.mint({
-            value: mintfee
-        })
-        console.log("mint receipt", receipt)
-        // const options = {}
-        // if (mintfee[0] = ethers.constants.AddressZero) {
-        //     options.Value = mintfee[1]
-        // } else {
-        //     const coin = new
-        // }
+        const options = {}
+        if (mintfee[0] == ethers.constants.AddressZero) {
+            options.value = mintfee[1]
+        } else {
+            const ctr = pbwallet.erc20_contract(mintfee[0])
+            const allow = await ctr.allowance(bsc.addr, bsc.ctrs.pbt.address)
+            console.log(" approve statrt", mintfee[1].gt(allow))
+            if (mintfee[1].gt(allow)) {
+                const reciept = await ctr.approve(bsc.ctrs.pbt.address, mintfee[1].mul(10000))
+                console.log("mint approve", reciept)
+            }
+        }
+        const res = await bsc.ctrs.pbt.mint(options)
+        console.log("mint res", res)
+        // 
     } catch (e) {
-        console.log(e.message)
+        let text = e.message
+        if ('data' in e) {
+            if ('message' in e.data) {
+                text = e.data.message
+            }
+        }
+        return text
     }
 
 

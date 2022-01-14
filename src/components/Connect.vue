@@ -203,11 +203,9 @@ export default {
     },
 
     mintNFT: async function () {
-      //铸造NFT====PBT
-      try {
-        await market.mintPBT();
-      } catch (e) {
-        console.log("mint error", e.message);
+      const msg = await market.mintPBT();
+      if (msg != "ok") {
+        this.$message(msg);
       }
     },
     refreshList: async function () {
