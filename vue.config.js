@@ -4,7 +4,7 @@ module.exports = {
     devServer: {
         inline: false,
         open: true,
-        hot: false,
+        // hot: false,
         hotOnly: true, // 热更新
 
     }

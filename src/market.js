@@ -137,6 +137,7 @@ async function getPBXaddr(pbtid) {
     try {
         const addrlist = await bsc.ctrs.pbconnect.XAddressList(pbtid)
         console.log('addrlist', addrlist)
+        return addrlist
     } catch (e) {
         console.log("e", e.message)
     }

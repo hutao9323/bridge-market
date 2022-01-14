@@ -43,8 +43,6 @@
                 v-for="nft in PBXlists"
                 :key="nft.uri"
                 @dragstart="dragstart($event, nft)"
-                @dragend="dragend"
-                draggable="true"
               >
                 <el-button @click="openNFT(nft)" class="nftlist">
                   <img v-if="nft.meta" :src="nft.meta.image" />
@@ -118,20 +116,18 @@ export default {
   },
   methods: {
     dragstart: function (event, nft) {
+      event.dataTransfer.clearData("nft");
+      // this.clearData();
       event.dataTransfer.setData("nft", nft.id);
       console.log("pbx id = ", nft.id);
     },
     drop: async function (event, nft) {
-      this.dragData = event.dataTransfer.getData("nft");
-      const pbxId = this.dragData;
+      const pbxId = event.dataTransfer.getData("nft");
       try {
         await market.bindTX(pbxId, nft);
       } catch (e) {
         console.log("drop error", e.message);
       }
-    },
-    dragend: function (event) {
-      event.dataTransfer.clearData();
     },
     unbind: async function (coin) {
       const pbtid = this.curNFT.id;
