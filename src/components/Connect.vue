@@ -158,13 +158,18 @@ export default {
     },
 
     openNFT: async function (nft) {
+      console.log("open NFT", nft);
       this.$store.commit("setCurNFT", nft);
       this.diaNFT = true;
-      try {
-        const addr = await market.getPBXaddr(nft.id);
-        console.log("pbx addrs", addr);
-      } catch (e) {
-        e.message;
+      if (!nft.coinTypes) {
+        return false;
+      } else {
+        try {
+          const addr = await market.getPBXaddr(nft.id);
+          console.log("pbx addrs", addr);
+        } catch (e) {
+          console.log("nft addr", e.message);
+        }
       }
     },
 
