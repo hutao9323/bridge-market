@@ -53,25 +53,47 @@
           </el-col>
           <el-col><Redeem /> </el-col>
         </el-col>
-        <el-dialog title="NFTinfo" :visible.sync="diaNFT">
+        <el-dialog title="NFTinfo" :visible.sync="diaNFT" width="80%">
           <el-card v-if="curNFT && curNFT.meta">
-            <img :src="curNFT.meta.image" :alt="curNFT.id" />
-            <p>id: {{ curNFT.id }}</p>
-            <el-col v-if="curNFT.coinTypes">
-              <p>bound:</p>
+            <el-col :span="7">
+              <img :src="curNFT.meta.image" :alt="curNFT.id" />
+              <p>id: {{ curNFT.id }}</p>
+            </el-col>
+            <el-col
+              style="min-height: 300px"
+              v-if="curNFT.coinTypes"
+              :span="13"
+            >
+              <h4>bound:</h4>
               <el-col v-for="coin in curNFT.coinTypes" :key="coin">
-                <p v-if="coin == 3">
-                  PBXBound:<span>Chives(XCC)</span>
-                  <el-button @click="unbind(coin)">Unbind</el-button>
-                </p>
-                <p v-if="coin == 2">
-                  PBXBound:<span>HDDcoin(HDD) </span>
-                  <el-button @click="unbind(coin)">Unbind</el-button>
-                </p>
-                <p v-if="coin == 1">
-                  PBXBound:<span>Chia(XCH)</span>
-                  <el-button @click="unbind(coin)">Unbind</el-button>
-                </p>
+                <el-col v-if="coin == 3">
+                  <dt>
+                    Chives(XCC):
+                    <el-button @click="unbind(coin)" size="mini"
+                      >Unbind</el-button
+                    >
+                  </dt>
+                  <dd v-if="x_address != null">
+                    deposit address : {{ x_address[0] }}
+                  </dd>
+                </el-col>
+                <el-col v-if="coin == 2">
+                  <dt>
+                    HDDcoin(HDD)<el-button @click="unbind(coin)" size="mini"
+                      >Unbind</el-button
+                    >
+                  </dt>
+                  <dd>deposit addr:{{ x_address[0] }}</dd>
+                </el-col>
+                <el-col v-if="coin == 1">
+                  <dt>
+                    Chia(XCH)
+                    <el-button @click="unbind(coin)" size="mini"
+                      >Unbind</el-button
+                    >
+                  </dt>
+                  <dd>deposit:{{ x_address[0] }}</dd>
+                </el-col>
               </el-col>
             </el-col>
           </el-card>
@@ -104,6 +126,7 @@ export default {
     PBXlists: function (newLists) {
       this.$store.commit("setPBXlists", newLists);
     },
+    deep: true,
   },
   data() {
     return {
@@ -112,6 +135,7 @@ export default {
       diaNFT: false,
       rAmount: 0,
       dragData: null,
+      x_address: "",
     };
   },
   methods: {
@@ -123,23 +147,75 @@ export default {
     },
     drop: async function (event, nft) {
       const pbxId = event.dataTransfer.getData("nft");
-      try {
-        await market.bindTX(pbxId, nft);
-      } catch (e) {
-        console.log("drop error", e.message);
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        backgroundL: "rgba(200,230,200,0.6)",
+      });
+      //
+      const tx = await market.bindTX(pbxId, nft);
+      if (tx != "ok") {
+        this.$message(tx);
+        loading.close();
+
+        return false;
       }
+      const obj = this;
+      await market.waitEventDone(tx, async function (tx, evt) {
+        await obj.get_lists();
+      });
+
+      loading.close();
     },
     unbind: async function (coin) {
       const pbtid = this.curNFT.id;
       console.log("unbinddddd", pbtid, coin);
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
       try {
-        await market.unbind(pbtid, coin);
+        const tx = await market.unbind(pbtid, coin);
+
+        const obj = this;
+        market.waitEventDone(tx, async function (tx, evt) {
+          await obj.get_lists();
+          // obj.$store.commit("setNFTinfo")
+        });
       } catch (e) {
         if (e.data.code == 3) {
           console.log("unbind err", e.data.message);
         }
         console.log(e.message);
       }
+      loading.close();
+    },
+
+    openNFT: async function (nft) {
+      console.log("open NFT", nft);
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
+      this.$store.commit("setCurNFT", nft);
+
+      if (!nft.coinTypes) {
+        loading.close();
+        this.diaNFT = true;
+        return false;
+      } else {
+        try {
+          const addr = await market.getPBXaddr(nft.id);
+          this.x_address = addr[1];
+          console.log("pbx addrs", addr);
+        } catch (e) {
+          console.log("nft addr", e.message);
+        }
+      }
+      loading.close();
+      this.diaNFT = true;
     },
     get_lists: async function () {
       const tlist = await market.getMyTokenList("PBT", this.baddr);
@@ -156,23 +232,6 @@ export default {
       this.$store.commit("setRedeemBalance", otBalance);
       this.$store.commit("setRedeemAllowance", otAllowance);
     },
-
-    openNFT: async function (nft) {
-      console.log("open NFT", nft);
-      this.$store.commit("setCurNFT", nft);
-      this.diaNFT = true;
-      if (!nft.coinTypes) {
-        return false;
-      } else {
-        try {
-          const addr = await market.getPBXaddr(nft.id);
-          console.log("pbx addrs", addr);
-        } catch (e) {
-          console.log("nft addr", e.message);
-        }
-      }
-    },
-
     load_lists: async function () {
       const loading = this.$loading({
         lock: true,
@@ -202,7 +261,6 @@ export default {
         }
       } catch (e) {
         this.$message(e.message);
-        loading.close();
       }
       loading.close();
     },

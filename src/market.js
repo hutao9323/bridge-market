@@ -98,14 +98,22 @@ async function tokenRedeem(tokenAddr, amount) {
     console.log('redeem amount', amount)
     await bsc.ctrs.tokenredeem.redeem(tokenAddr, amount)
 }
+
 async function bindTX(pbx_id, pbt) {
     const pbtId = ethers.utils.hexZeroPad(ethers.utils.hexValue(ethers.BigNumber.from(pbt.id)), 32)
     console.log("pbtid", pbtId, "pbx", pbx_id)
     try {
         const res = await bsc.ctrs.pbx["safeTransferFrom(address,address,uint256,bytes)"](bsc.addr, bsc.ctrs.pbconnect.address, pbx_id, pbtId)
         console.log('bindTX receive', res)
+        return res
     } catch (e) {
-        console.log("bind error", e.message)
+        let text = e.message
+        if ('data' in e) {
+            if ('message' in e.data) {
+                text = e.data.message
+            }
+        }
+        return text
     }
 }
 async function mintPBT() {
@@ -125,7 +133,6 @@ async function mintPBT() {
         }
         const res = await bsc.ctrs.pbt.mint(options)
         console.log("mint res", res)
-        // 
     } catch (e) {
         let text = e.message
         if ('data' in e) {
@@ -135,8 +142,22 @@ async function mintPBT() {
         }
         return text
     }
+}
+async function waitEventDone(tx, done) {
+    const ctr = pbwallet.erc721_contract(tx.to)
+    console.log("wait start", ctr, "tx=", tx, "done =", done);
 
+    ctr.on(ctr.filters.Transfer, function (evt) {
+        console.log("wait evt 1111", evt, evt.transactionHash, "tx.hash=", tx.hash);
 
+        if (evt.transactionHash == tx.hash) {
+            console.log("wait evt 222", evt.transactionHash, "tx.hash=", tx.hash);
+            done(tx, evt)
+            ctr.off(ctr.filters.Transfer)
+            console.log("tx confirmed");
+        }
+
+    })
 }
 //查询绑定关系 PBT--PBX 
 async function sesrchlist() {
@@ -166,6 +187,7 @@ async function unbind(pbtid, cointype) {
                 console.log("unbinding with pbxID", pbcoin, pbxid)
                 const res = await pbconnect.retreat(pbxid)
                 console.log("unbind res", res)
+                return res
             }
         }
     } catch (e) {
@@ -182,5 +204,6 @@ export default {
     tokenRedeem: tokenRedeem,
     unbind: unbind,
     getPBXaddr: getPBXaddr,
-    mintPBT: mintPBT
+    mintPBT: mintPBT,
+    waitEventDone: waitEventDone,
 }
