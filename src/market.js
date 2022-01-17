@@ -11,11 +11,42 @@ const ptAddrs = {
     'BUSD': ethers.utils.getAddress('0x78867bbeef44f2326bf8ddd1941a4439382ef2a7')
 }
 
+async function listenNFTEvents(ctr, list, commit){
+    ctr.on(ctr.filters.Transfer, function (evt)
+        if(evt.args.to==bsc.addr){  // transfer in
+        }else if(evt.args.from==bsc.addr){  // transfer out
+        }else if(evt.args.to==bsc.ctrs.pbmarket.to){    // on sale
+        }else if(evt.args.from==bsc.ctrs.pbmarket.to){  // bought or offsale
+        }
+    })
+}
+
+async function listenEvents(){
+    bsc.nftlists = {
+        pbt: [],        // initial load all owned PBT
+        pbx: [],        // initial load all owned PBX
+    }
+    listenNFTEvents(bsc.ctrs.pbt, bsc.nftlists.pbt, function(newlist){
+        bsc.nftlists.pbt = newlist
+        commit('setPBTList', newlist)
+    })
+    listenNFTEvents(bsc.ctrs.pbx, bsc.nftlists.pbx, function(newlist){
+        bsc.nftlists.pbx = newlist
+        commit('setPBXList', newlist)
+    })
+    bsc.ctrs.pbconnect.on([bsc.ctrs.pbconnect.filters.PBXBind, function (evt) {
+        // if PBTid in PBTList, update my PBT info
+    })
+    bsc.ctrs.pbconnect.on([bsc.ctrs.pbconnect.filters.PBXRetreat, function (evt) {
+        // if PBTid in PBTList, update my PBT info
+    })
+}
+
 async function connect() {
     bsc = await pbwallet.connect(true)
     if (bsc) {
         console.log("bsc", bsc)
-
+        listenEvents()
         return bsc.addr
     }
     console.log("bsc", bsc)
