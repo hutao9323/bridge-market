@@ -11,42 +11,172 @@ const ptAddrs = {
     'BUSD': ethers.utils.getAddress('0x78867bbeef44f2326bf8ddd1941a4439382ef2a7')
 }
 
-async function listenNFTEvents(ctr, list, commit){
-    ctr.on(ctr.filters.Transfer, function (evt)
-        if(evt.args.to==bsc.addr){  // transfer in
-        }else if(evt.args.from==bsc.addr){  // transfer out
-        }else if(evt.args.to==bsc.ctrs.pbmarket.to){    // on sale
-        }else if(evt.args.from==bsc.ctrs.pbmarket.to){  // bought or offsale
+async function listenNFTEvents(ctr, list, commit) {
+    ctr.on(ctr.filters.Transfer, function (evt) {
+        // console.log("listen evt", evt)
+        if (evt.args.to == bsc.addr && evt.args.to == bsc.ctrs.pbmarket.to) { // transfer in   PBXRetreat
+            // [{nft0}, {nft1}]
+            console.log("listen list0 =", list, evt, evt.args.tokenId)
+
+        } else if (evt.args.from == bsc.addr && evt.args.from == bsc.ctrs.pbmarket.to) { // transfer out PBXBind
+            console.log("listen list1 =", list, evt, evt.args.tokenId)
+
+            // } else if (evt.args.to == bsc.ctrs.pbmarket.to) { // on sale
+            //     console.log("listen list2 =", list, evt, evt.args.tokenId)
+
+            // } else if (evt.args.from == bsc.ctrs.pbmarket.to) { // bought or offsale
+            //     console.log("listen list3 =", list, evt, evt.args.tokenId)
         }
     })
 }
 
-async function listenEvents(){
-    bsc.nftlists = {
-        pbt: [],        // initial load all owned PBT
-        pbx: [],        // initial load all owned PBX
+function pbInList(id, list) {
+    for (var i in list) {
+        const item = list[i]
+        if (item.id == id) {
+            return i
+        }
     }
-    listenNFTEvents(bsc.ctrs.pbt, bsc.nftlists.pbt, function(newlist){
-        bsc.nftlists.pbt = newlist
-        commit('setPBTList', newlist)
+    return false
+}
+//数组去重
+function unique(arr) {
+    return Array.from(new Set(arr))
+}
+async function getCoinTypes(pbxid) {
+    const cointype = await bsc.ctrs.pbx.getCoinTypes([pbxid])
+    return cointype
+}
+async function listenEvents(commit) {
+
+    listenNFTEvents(bsc.ctrs.pbt, bsc.nftlists.pbt, function (newlist) {
+        newlist = bsc.nftlists.pbt
+        console.log("pbt=list", newlist)
+        commit('setPBTlists', newlist)
     })
-    listenNFTEvents(bsc.ctrs.pbx, bsc.nftlists.pbx, function(newlist){
-        bsc.nftlists.pbx = newlist
-        commit('setPBXList', newlist)
+    listenNFTEvents(bsc.ctrs.pbx, bsc.nftlists.pbx, function (newlist) {
+        newlist = bsc.nftlists.pbx
+        console.log("pbx=list", newlist)
+
+        commit('setPBXlists', newlist)
     })
-    bsc.ctrs.pbconnect.on([bsc.ctrs.pbconnect.filters.PBXBind, function (evt) {
-        // if PBTid in PBTList, update my PBT info
-    })
-    bsc.ctrs.pbconnect.on([bsc.ctrs.pbconnect.filters.PBXRetreat, function (evt) {
-        // if PBTid in PBTList, update my PBT info
-    })
+    if (bsc.ctrs.pbconnect.filters.PBXBind) {
+        bsc.ctrs.pbconnect.on(bsc.ctrs.pbconnect.filters.PBXBind, async function (evt) {
+            // if PBTid in PBTList, update my PBT info
+
+            const index = pbInList(evt.args.pbtId.toNumber(), bsc.nftlists.pbt)
+            const coinTy = await getCoinTypes(evt.args.pbxId)
+
+            if (index) {
+                const pbtnft = bsc.nftlists.pbt[index]
+
+                if ('coinTypes' in pbtnft) {
+
+                    const type = pbtnft.coinTypes.includes(coinTy[0])
+                    console.log("type", type, coinTy[0], "cointype type", pbtnft.coinTypes)
+
+                    if (!type) {
+
+                        pbtnft.coinTypes.push(coinTy[0])
+                        console.log("pntnft", bsc.nftlists.pbt[index])
+                        // commit("setPBTlists", bsc.nftlists.pbt)
+
+                    }
+
+                } else {
+                    pbtnft.coinTypes = coinTy
+                    bsc.nftlists.pbt.splice(index, 1)
+                    bsc.nftlists.pbt.push(pbtnft)
+                    console.log('bind cointypes', pbtnft, "bsc.nftlists", bsc.nftlists.pbt)
+                }
+                console.log("bind pbt nft", bsc.nftlists.pbt)
+                commit("setPBTlists", bsc.nftlists.pbt)
+
+            }
+            const xIndex = pbInList(evt.args.pbxId.toNumber(), bsc.nftlists.pbx)
+
+            if (xIndex) {
+                bsc.nftlists.pbx.splice(xIndex, 1)
+                console.log("bind pbx nft", bsc.nftlists.pbx)
+                commit("setPBXlists", bsc.nftlists.pbx)
+            }
+            bsc.ctrs.pbconnect.off(bsc.ctrs.pbconnect.filters.PBXBind)
+        })
+    }
+    if (bsc.ctrs.pbconnect.filters.PBXRetreat) {
+        bsc.ctrs.pbconnect.on(bsc.ctrs.pbconnect.filters.PBXRetreat, async function (evt) {
+            // if PBTid in PBTList, update my PBT info
+            console.log("retreat listen evt", evt, "args", evt.args)
+
+            const index = pbInList(evt.args.pbtId.toNumber(), bsc.nftlists.pbt)
+            const coinTy = await getCoinTypes(evt.args.pbxId)
+
+            if (index) {
+                const pbtnft = bsc.nftlists.pbt[index]
+                //判断 coinTypes 中是否含有 coinTy
+                const type = pbtnft.coinTypes.indexOf(coinTy[0])
+                console.log("re type=", type)
+                // cointTypes[type] = true
+                // Object.keys(coinTypes)
+                if (type != false)
+                    if (pbtnft.coinTypes.length > 1) {
+                        //查找cointypes中cointy的位置
+                        // const tyIndex = pbtnft.coinTypes.indexof(coinTy[0])
+                        pbtnft.coinTypes.splice(type, 1)
+                        console.log("retreat cointypes", pbtnft.coinTypes, bsc.nftlists.pbt)
+                        // commit("setPBTlists", bsc.nftlists.pbt)
+
+                    } else {
+                        delete(pbtnft.coinTypes)
+
+                        bsc.nftlists.pbt.splice(index, 1)
+                        bsc.nftlists.pbt.push(pbtnft)
+                        console.log("re cointy", pbtnft.coinTypes, bsc.nftlists.pbt)
+                        // commit("setPBTlists", bsc.nftlists.pbt)
+
+                    }
+                commit("setPBTlists", bsc.nftlists.pbt)
+
+                console.log("retreat pbt nft=", bsc.nftlists.pbt)
+
+            }
+            const xIndex = pbInList(evt.args.pbxId.toNumber(), bsc.nftlists.pbx)
+            console.log("retread xIndex", xIndex)
+
+            if (!xIndex) {
+                const pb = bsc.ctrs.pbx
+                const id = evt.args.pbxId
+                console.log("retreat pbx id", id, evt.args.pbxId)
+                const uri = await pb.tokenURI(id)
+                const meta = await (await fetch(uri)).json()
+                const item = {
+                    id: id.toNumber(),
+                    uri: uri,
+                    meta: meta
+                }
+                console.log("item", item)
+                bsc.nftlists.pbx.push(item)
+                bsc.nftlists.pbx = Array.from(new Set(bsc.nftlists.pbx))
+                console.log("pbx retreat list push", bsc.nftlists.pbx)
+                commit("setPBXlists", bsc.nftlists.pbx)
+
+            }
+            console.log("retreat evt done,bsc.nftlists =", bsc.nftlists)
+            bsc.ctrs.pbconnect.off(bsc.ctrs.pbconnect.filters.PBXRetreat)
+        })
+    }
+
 }
 
-async function connect() {
+async function connect(commit) {
     bsc = await pbwallet.connect(true)
+    bsc.nftlists = {
+        pbt: [], // initial load all owned PBT
+        pbx: [], // initial load all owned PBX
+    }
     if (bsc) {
         console.log("bsc", bsc)
-        listenEvents()
+        await listenEvents(commit)
         return bsc.addr
     }
     console.log("bsc", bsc)
@@ -65,10 +195,11 @@ function priceName(token) {
 
 async function getUserTokenList(pb, addr) {
     const cnt = await pb.balanceOf(addr)
-    console.log('user', addr, 'has', cnt, 'tokens')
+    // console.log('user', addr, 'has', cnt, 'tokens')
     const list = []
     for (var i = 0; i < cnt; i++) {
         const idx = await pb.tokenOfOwnerByIndex(addr, i)
+        console.log("idx=", idx)
         const uri = await pb.tokenURI(idx)
         const meta = await (await fetch(uri)).json()
         const info = {
@@ -86,7 +217,8 @@ async function getUserTokenList(pb, addr) {
         }
         list.push(info)
     }
-    console.log('token list of', addr, list)
+
+    // console.log('token list of', addr, list, )
     return list
 }
 
@@ -97,6 +229,9 @@ function coin2pb(coin) {
 }
 
 async function getMyTokenList(coin) {
+    if (coin == "PBT") bsc.nftlists.pbt = await getUserTokenList(coin2pb(coin), bsc.addr)
+    if (coin == "PBX") bsc.nftlists.pbx = await getUserTokenList(coin2pb(coin), bsc.addr)
+    console.log("bsc.nftlist=", bsc.nftlists)
     return await getUserTokenList(coin2pb(coin), bsc.addr)
 }
 
@@ -136,6 +271,8 @@ async function bindTX(pbx_id, pbt) {
     try {
         const res = await bsc.ctrs.pbx["safeTransferFrom(address,address,uint256,bytes)"](bsc.addr, bsc.ctrs.pbconnect.address, pbx_id, pbtId)
         console.log('bindTX receive', res)
+        // await listenEvents()
+
         return res
     } catch (e) {
         let text = e.message
@@ -163,6 +300,8 @@ async function mintPBT() {
             }
         }
         const res = await bsc.ctrs.pbt.mint(options)
+        // await listenEvents()
+
         console.log("mint res", res)
     } catch (e) {
         let text = e.message
@@ -176,18 +315,12 @@ async function mintPBT() {
 }
 async function waitEventDone(tx, done) {
     const ctr = pbwallet.erc721_contract(tx.to)
-    console.log("wait start", ctr, "tx=", tx, "done =", done);
 
     ctr.on(ctr.filters.Transfer, function (evt) {
-        console.log("wait evt 1111", evt, evt.transactionHash, "tx.hash=", tx.hash);
-
         if (evt.transactionHash == tx.hash) {
-            console.log("wait evt 222", evt.transactionHash, "tx.hash=", tx.hash);
             done(tx, evt)
             ctr.off(ctr.filters.Transfer)
-            console.log("tx confirmed");
         }
-
     })
 }
 //查询绑定关系 PBT--PBX 
@@ -210,20 +343,24 @@ async function unbind(pbtid, cointype) {
         const pbxlist = await pbconnect.PBXList(pbtid)
         // const cointypes = await bsc.ctrs.pbx.getCoinTypes(pbxlist)
         console.log("pbxlist", pbxlist, typeof pbxlist, "cointypes", cointype)
-        for (let i = 0; i < pbxlist.length; i++) {
-            const pbcoin = await bsc.ctrs.pbx.getCoinTypes([pbxlist[i]])
-            console.log("pbcoin", pbcoin)
-            if (pbcoin == cointype) {
-                const pbxid = parseInt(pbxlist[i])
-                console.log("unbinding with pbxID", pbcoin, pbxid)
-                const res = await pbconnect.retreat(pbxid)
-                console.log("unbind res", res)
-                return res
+        if (pbxlist.length >= 1) {
+            for (let i = 0; i < pbxlist.length; i++) {
+                const pbcoin = await bsc.ctrs.pbx.getCoinTypes([pbxlist[i]])
+                console.log("pbcoin", pbcoin)
+                if (pbcoin == cointype) {
+                    const pbxid = parseInt(pbxlist[i])
+                    console.log("unbinding with pbxID", pbcoin, pbxid)
+                    const res = await pbconnect.retreat(pbxid)
+                    console.log("unbind res", res)
+                    return res
+                }
             }
         }
+        // await listenEvents()
     } catch (e) {
         console.log("onbound error", e.message)
     }
+
 }
 export default {
     connect: connect,

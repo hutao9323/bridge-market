@@ -139,32 +139,43 @@ export default {
     };
   },
   methods: {
+    get_lists: async function () {
+      const tlist = await market.getMyTokenList("PBT", this.baddr);
+      this.$store.commit("setPBTlists", tlist);
+
+      const xlist = await market.getMyTokenList("PBX", this.baddr);
+      this.$store.commit("setPBXlists", xlist);
+
+      console.log("xlists", this.$store.state.PBXlists);
+
+      const oldToken = "0x134315EF3D11eEd8159fD1305af32119a046375A";
+      const otBalance = await market.tokenBalance(oldToken);
+      const otAllowance = await market.tokenAllowance(oldToken);
+      this.$store.commit("setRedeemBalance", otBalance);
+      this.$store.commit("setRedeemAllowance", otAllowance);
+    },
     dragstart: function (event, nft) {
       event.dataTransfer.clearData("nft");
-      // this.clearData();
       event.dataTransfer.setData("nft", nft.id);
-      console.log("pbx id = ", nft.id);
     },
     drop: async function (event, nft) {
       const pbxId = event.dataTransfer.getData("nft");
       const loading = this.$loading({
         lock: true,
         spinner: "el-icon-loading",
-        backgroundL: "rgba(200,230,200,0.6)",
+        background: "rgba(200,230,200,0.6)",
       });
       //
       const tx = await market.bindTX(pbxId, nft);
+      const obj = this;
+      await market.waitEventDone(tx, async function (tx, evt) {
+        // await obj.get_lists();
+      });
       if (tx != "ok") {
         this.$message(tx);
         loading.close();
-
         return false;
       }
-      const obj = this;
-      await market.waitEventDone(tx, async function (tx, evt) {
-        await obj.get_lists();
-      });
-
       loading.close();
     },
     unbind: async function (coin) {
@@ -177,11 +188,9 @@ export default {
       });
       try {
         const tx = await market.unbind(pbtid, coin);
-
-        const obj = this;
+        // const obj = this;
         market.waitEventDone(tx, async function (tx, evt) {
-          await obj.get_lists();
-          // obj.$store.commit("setNFTinfo")
+          // await obj.get_lists();
         });
       } catch (e) {
         if (e.data.code == 3) {
@@ -217,21 +226,7 @@ export default {
       loading.close();
       this.diaNFT = true;
     },
-    get_lists: async function () {
-      const tlist = await market.getMyTokenList("PBT", this.baddr);
-      this.$store.commit("setPBTlists", tlist);
 
-      const xlist = await market.getMyTokenList("PBX", this.baddr);
-      this.$store.commit("setPBXlists", xlist);
-
-      console.log("xlists", this.$store.state.PBXlists);
-
-      const oldToken = "0x134315EF3D11eEd8159fD1305af32119a046375A";
-      const otBalance = await market.tokenBalance(oldToken);
-      const otAllowance = await market.tokenAllowance(oldToken);
-      this.$store.commit("setRedeemBalance", otBalance);
-      this.$store.commit("setRedeemAllowance", otAllowance);
-    },
     load_lists: async function () {
       const loading = this.$loading({
         lock: true,
@@ -254,7 +249,7 @@ export default {
         background: "rgba(200,230,200,0.6)",
       });
       try {
-        const addr = await market.connect();
+        const addr = await market.connect(commit);
         if (addr) {
           commit("setBaddr", addr);
           await this.get_lists();
