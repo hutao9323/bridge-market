@@ -114,15 +114,18 @@ async function listenEvents(commit) {
             if (index) {
                 const pbtnft = bsc.nftlists.pbt[index]
                 //判断 coinTypes 中是否含有 coinTy
-                const type = pbtnft.coinTypes.indexOf(coinTy[0])
+                const type = pbtnft.coinTypes.includes(coinTy[0])
                 console.log("re type=", type)
                 // cointTypes[type] = true
                 // Object.keys(coinTypes)
-                if (type != false)
+                // if (type == 0) {
+                //     type = true
+                // }
+                if (type)
                     if (pbtnft.coinTypes.length > 1) {
                         //查找cointypes中cointy的位置
-                        // const tyIndex = pbtnft.coinTypes.indexof(coinTy[0])
-                        pbtnft.coinTypes.splice(type, 1)
+                        const tyIndex = pbtnft.coinTypes.indexOf(coinTy[0])
+                        pbtnft.coinTypes.splice(tyIndex, 1)
                         console.log("retreat cointypes", pbtnft.coinTypes, bsc.nftlists.pbt)
                         // commit("setPBTlists", bsc.nftlists.pbt)
 
