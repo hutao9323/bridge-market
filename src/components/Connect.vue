@@ -1,9 +1,7 @@
 <template>
   <el-col>
     <el-col v-if="!baddr" class="user">
-      <el-button round @click="connect_wallet" class="connect">
-        connect wallet
-      </el-button>
+      <GetAllInfo />
     </el-col>
     <el-col v-else class="user">
       <el-col>
@@ -19,15 +17,15 @@
               <li
                 @drop="drop($event, nft)"
                 @dragover.prevent
-                v-for="nft in PBTlists"
-                :key="nft.id"
+                v-for="(nft, name) in PBTlists"
+                :key="name"
               >
                 <el-button class="nftlist" @click="openNFT(nft)">
-                  <span>{{ nft.id }}</span>
-                  <img v-if="nft.meta" :src="nft.meta.image" />
+                  <span>#{{ nft.id }}</span>
+                  <img v-if="nft.meta" :src="nft.meta.image" alt="IMG" />
                   <el-badge
-                    v-if="nft.coinTypes"
-                    :value="nft.coinTypes.length"
+                    v-if="nft.pbxs"
+                    :value="Object.keys(nft.pbxs).length"
                     class="item"
                   >
                   </el-badge>
@@ -40,13 +38,13 @@
             <p>PBX</p>
             <ul>
               <li
-                v-for="nft in PBXlists"
-                :key="nft.uri"
+                v-for="(nft, name) in PBXlists"
+                :key="name"
                 @dragstart="dragstart($event, nft)"
               >
                 <el-button @click="openNFT(nft)" class="nftlist">
-                  <img v-if="nft.meta" :src="nft.meta.image" />
-                  {{ nft.id }}
+                  <img v-if="nft.meta" :src="nft.meta.image" alt="IMG" />
+                  #{{ nft.id }}
                 </el-button>
               </li>
             </ul>
@@ -59,40 +57,38 @@
               <img :src="curNFT.meta.image" :alt="curNFT.id" />
               <p>id: {{ curNFT.id }}</p>
             </el-col>
-            <el-col
-              style="min-height: 300px"
-              v-if="curNFT.coinTypes"
-              :span="13"
-            >
-              <h4>bound:</h4>
-              <el-col v-for="coin in curNFT.coinTypes" :key="coin">
-                <el-col v-if="coin == 3">
+            <el-col style="min-height: 300px" v-if="curNFT.pbxs" :span="13">
+              <h3>Bound:</h3>
+              <el-col v-for="(item, name) in curNFT.pbxs" :key="name">
+                <el-col v-if="name == 3">
                   <dt>
                     Chives(XCC):
-                    <el-button @click="unbind(coin)" size="mini"
-                      >Unbind</el-button
-                    >
+                    <el-button @click="unbind(item)" size="mini">
+                      Unbind
+                    </el-button>
                   </dt>
-                  <dd v-if="x_address != null">
-                    deposit address : {{ x_address[0] }}
+                  <dd v-if="item.depositAddr">
+                    deposit address : {{ item.depositAddr }}
                   </dd>
+                  <!-- <dd v-if=""></dd> -->
                 </el-col>
-                <el-col v-if="coin == 2">
+                <el-col v-if="name == 2">
                   <dt>
-                    HDDcoin(HDD)<el-button @click="unbind(coin)" size="mini"
-                      >Unbind</el-button
-                    >
+                    HDDcoin(HDD)
+                    <el-button @click="unbind(item)" size="mini">
+                      Unbind
+                    </el-button>
                   </dt>
-                  <dd>deposit addr:{{ x_address[0] }}</dd>
+                  <dd>deposit addr:{{ item.depositAddr }}</dd>
                 </el-col>
-                <el-col v-if="coin == 1">
+                <el-col v-if="name == 1">
                   <dt>
                     Chia(XCH)
-                    <el-button @click="unbind(coin)" size="mini"
+                    <el-button @click="unbind(item)" size="mini"
                       >Unbind</el-button
                     >
                   </dt>
-                  <dd>deposit:{{ x_address[0] }}</dd>
+                  <dd>deposit:{{ item.depositAddr }}</dd>
                 </el-col>
               </el-col>
             </el-col>
@@ -106,10 +102,12 @@
 <script>
 import { mapState } from "vuex";
 import market from "../market";
+import GetAllInfo from "./GetAllInfo.vue";
 import Redeem from "./Redeem.vue";
 
 export default {
   components: {
+    GetAllInfo,
     Redeem,
   },
   computed: mapState({
@@ -123,6 +121,7 @@ export default {
     PBTlists: function (newLists) {
       this.$store.commit("setPBTlists", newLists);
     },
+
     PBXlists: function (newLists) {
       this.$store.commit("setPBXlists", newLists);
     },
@@ -155,39 +154,37 @@ export default {
       this.$store.commit("setRedeemAllowance", otAllowance);
     },
     dragstart: function (event, nft) {
-      event.dataTransfer.clearData("nft");
-      event.dataTransfer.setData("nft", nft.id);
+      event.dataTransfer.clearData("nft_id");
+      event.dataTransfer.setData("nft_id", nft.id);
     },
     drop: async function (event, nft) {
-      const pbxId = event.dataTransfer.getData("nft");
-      const loading = this.$loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200,230,200,0.6)",
-      });
-      //
-      const tx = await market.bindTX(pbxId, nft);
-      const obj = this;
-      await market.waitEventDone(tx, async function (tx, evt) {
-        // await obj.get_lists();
-      });
-      if (tx != "ok") {
-        this.$message(tx);
-        loading.close();
-        return false;
-      }
-      loading.close();
-    },
-    unbind: async function (coin) {
-      const pbtid = this.curNFT.id;
-      console.log("unbinddddd", pbtid, coin);
+      const pbxId = event.dataTransfer.getData("nft_id");
       const loading = this.$loading({
         lock: true,
         spinner: "el-icon-loading",
         background: "rgba(200,230,200,0.6)",
       });
       try {
-        const tx = await market.unbind(pbtid, coin);
+        const tx = await market.bindTX(pbxId, nft);
+        const obj = this;
+        await market.waitEventDone(tx, async function (tx, evt) {
+          // await obj.get_lists();
+        });
+      } catch (e) {
+        console.log("bind err", e.message);
+        loading.close();
+      }
+      loading.close();
+    },
+    unbind: async function (item) {
+      console.log("unbinddddd", item);
+      const loading = this.$loading({
+        lock: true,
+        spinner: "el-icon-loading",
+        background: "rgba(200,230,200,0.6)",
+      });
+      try {
+        const tx = await market.unbind(item);
         // const obj = this;
         market.waitEventDone(tx, async function (tx, evt) {
           // await obj.get_lists();
@@ -203,27 +200,27 @@ export default {
 
     openNFT: async function (nft) {
       console.log("open NFT", nft);
-      const loading = this.$loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200,230,200,0.6)",
-      });
+      // const loading = this.$loading({
+      //   lock: true,
+      //   spinner: "el-icon-loading",
+      //   background: "rgba(200,230,200,0.6)",
+      // });
       this.$store.commit("setCurNFT", nft);
 
-      if (!nft.coinTypes) {
-        loading.close();
-        this.diaNFT = true;
-        return false;
-      } else {
-        try {
-          const addr = await market.getPBXaddr(nft.id);
-          this.x_address = addr[1];
-          console.log("pbx addrs", addr);
-        } catch (e) {
-          console.log("nft addr", e.message);
-        }
-      }
-      loading.close();
+      // if (!nft.coinTypes) {
+      //   loading.close();
+      //   this.diaNFT = true;
+      //   return false;
+      // } else {
+      //   try {
+      //     const addr = await market.getPBXaddr(nft.id);
+      //     this.x_address = addr[1];
+      //     console.log("pbx addrs", addr);
+      //   } catch (e) {
+      //     console.log("nft addr", e.message);
+      //   }
+      // }
+      // loading.close();
       this.diaNFT = true;
     },
 
@@ -241,33 +238,14 @@ export default {
       }
       loading.close();
     },
-    connect_wallet: async function () {
-      const commit = this.$store.commit;
-      const loading = this.$loading({
-        lock: true,
-        spinner: "el-icon-loading",
-        background: "rgba(200,230,200,0.6)",
-      });
-      try {
-        const addr = await market.connect(commit);
-        if (addr) {
-          commit("setBaddr", addr);
-          await this.get_lists();
-        }
-      } catch (e) {
-        this.$message(e.message);
-      }
-      loading.close();
-    },
 
     mintNFT: async function () {
-      const msg = await market.mintPBT();
-      if (msg != "ok") {
-        this.$message(msg);
+      try {
+        await market.mintPBT();
+      } catch (e) {
+        this.$message(e.data.message);
+        console.log("mint err", e.message);
       }
-    },
-    refreshList: async function () {
-      await this.getlist();
     },
   },
 };
