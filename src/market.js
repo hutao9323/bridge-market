@@ -19,15 +19,22 @@ async function listenNFTEvents(ctr, list, commit) {
         // console.log("listen evt", evt)
         if (evt.args.to == bsc.addr) { // transfer in   PBXRetreat
             // [{nft0}, {nft1}]
+            commit("setPBXlists", list)
             console.log("listen list0 =", list, evt, evt.args.tokenId)
 
         } else if (evt.args.from == bsc.addr) { // transfer out PBXBind
+            commit("setPBXlists", list)
+
             console.log("listen list1 =", list, evt, evt.args.tokenId)
 
         } else if (evt.args.to == bsc.ctrs.pbmarket.to) { // on sale
+            commit("setPBXlists", list)
+
             console.log("listen list2 =", list, evt, evt.args.tokenId)
 
         } else if (evt.args.from == bsc.ctrs.pbmarket.to) { // bought or offsale
+            commit("setPBXlists", list)
+
             console.log("listen list3 =", list, evt, evt.args.tokenId)
         }
     })
@@ -99,12 +106,11 @@ async function listenEvents(commit) {
                     if (!type) {
                         // 添加key值  
                         const pbxinfo = await getBindInfo(evt.args.pbtId, evt.args.pbxId)
-                        if (pbxinfo.coinTypes != "") {
-                            const key = coinTy[0]
-                            pbtnft['pbxs'][key.toString()] = pbxinfo
-                            console.log("bind 4 pntnft ", PBTList.owned)
-                            commit("setPBTlists", PBTList.owned)
-                        }
+                        const key = coinTy[0]
+                        pbtnft['pbxs'][key.toString()] = pbxinfo
+                        console.log("bind 4 pntnft ", PBTList.owned)
+                        commit("setPBTlists", PBTList.owned)
+
                     }
                 } else {
                     // 不存在pbxs，添加 pbxs
