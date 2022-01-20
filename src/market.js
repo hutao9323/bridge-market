@@ -3,7 +3,6 @@ import {
 } from 'ethers'
 
 import pbwallet from 'pbwallet'
-import listen from "./listenInfo.js"
 // 全局变量设置
 var bsc = {}
 var PBTList = {}
