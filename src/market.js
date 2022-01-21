@@ -3,6 +3,7 @@ import {
 } from 'ethers'
 
 import pbwallet from 'pbwallet'
+
 // 全局变量设置
 var bsc = {}
 var PBTList = {}
@@ -15,13 +16,26 @@ const ptAddrs = {
 //监听事件发生
 
 async function listenNFTEvents(ctr, list, commit) {
-    ctr.on(ctr.filters.Transfer, function (evt) {
+    ctr.on(ctr.filters.Transfer, async function (evt) {
         // console.log("listen evt", evt)
-        if (evt.args.to == bsc.addr) { // transfer in   PBXRetreat
+        if (evt.args.to == bsc.addr) { // transfer in   PBXRetreat mintPBT
             // [{nft0}, {nft1}]
-            commit("setPBXlists", list)
             console.log("listen list0 =", list, evt, evt.args.tokenId)
-
+            const key = (evt.args.tokenId).toString()
+            if (!(key in PBTList.owned)) {
+                const uri = bsc.ctrs.pbx.tokenURI(evt.args.tokenId)
+                const meta = await (await fetch(uri)).json()
+                const info = {
+                    id: parseInt(evt.args.tokenId),
+                    uri: uri,
+                    meta: meta
+                }
+                PBTList.owned[key] = info
+                list = PBTList.owned
+                commit("setPBTlists", list)
+            } else {
+                commit("setPBXlists", list)
+            }
         } else if (evt.args.from == bsc.addr) { // transfer out PBXBind
             commit("setPBXlists", list)
 
@@ -197,7 +211,6 @@ async function listenEvents(commit) {
             bsc.ctrs.pbconnect.off(bsc.ctrs.pbconnect.filters.PBXRetreat)
         })
     }
-
 }
 //获取绑定的pbx类型
 async function getCoinTypes(pbxid) {
@@ -382,7 +395,6 @@ async function waitEventDone(tx, done) {
 async function sesrchlist() {
 
 }
-
 // 解除绑定
 async function unbind(pbx) {
     const pbconnect = bsc.ctrs.pbconnect
@@ -395,7 +407,25 @@ async function unbind(pbx) {
     } catch (e) {
         console.log("onbound error", e.message)
     }
+}
 
+//绑定取款地址
+async function bindAddr(waddr, pbxId) {
+    // try {
+    // var xhex = '',
+    if ('ChiaUtils' in window) {
+        const addr = window.ChiaUtils.address_to_puzzle_hash(waddr)
+        const id = parseInt(pbxId)
+        console.log("id", id, addr)
+        const res = await bsc.ctrs.pbx.bindWithdrawPuzzleHash(id, addr)
+        console.log("bindwaddr", res)
+        return res
+    }
+    // const addr = window.ChiaUtils.address_to_puzzle_hash(waddr)
+
+    // } catch (e) {
+    // console.log("bindaddr errrrr", e.message)
+    // }
 }
 export default {
     connect: connect,
@@ -407,5 +437,6 @@ export default {
     tokenRedeem: tokenRedeem,
     unbind: unbind,
     mintPBT: mintPBT,
+    bindAddr: bindAddr,
     waitEventDone: waitEventDone,
 }

@@ -70,6 +70,13 @@
                   <dd v-if="item.depositAddr">
                     deposit address : {{ item.depositAddr }}
                   </dd>
+                  <dd v-if="item.withdrawAddr">
+                    <span
+                      v-if="String(item['withfrawAddr']).substr(2, 4) != '0000'"
+                    >
+                      withdrawAddr: {{ item.withdrawAddr }}
+                    </span>
+                  </dd>
                   <!-- <dd v-if=""></dd> -->
                 </el-col>
                 <el-col v-if="name == 2">
@@ -79,7 +86,14 @@
                       Unbind
                     </el-button>
                   </dt>
-                  <dd>deposit addr:{{ item.depositAddr }}</dd>
+                  <dd v-if="item.depositAddr">
+                    deposit addr:{{ item.depositAddr }}
+                  </dd>
+                  <dd v-if="item.withdrawAddr">
+                    <span v-if="item.withfrawAddr.substr(2, 4) != '0000'">
+                      withdrawAddr: {{ item.withdrawAddr }}
+                    </span>
+                  </dd>
                 </el-col>
                 <el-col v-if="name == 1">
                   <dt>
@@ -88,10 +102,18 @@
                       >Unbind</el-button
                     >
                   </dt>
-                  <dd>deposit:{{ item.depositAddr }}</dd>
+                  <dd v-if="item.depositAddr">
+                    deposit : {{ item.depositAddr }}
+                  </dd>
+                  <dd v-if="item.withdrawAddr">
+                    <span v-if="item.withfrawAddr.substr(2, 4) != '0000'">
+                      withdrawAddr: {{ item.withdrawAddr }}
+                    </span>
+                  </dd>
                 </el-col>
               </el-col>
             </el-col>
+            <el-col><BindWaddr /></el-col>
           </el-card>
         </el-dialog>
       </el-col>
@@ -104,11 +126,13 @@ import { mapState } from "vuex";
 import market from "../market";
 import GetAllInfo from "./GetAllInfo.vue";
 import Redeem from "./Redeem.vue";
+import BindWaddr from "./BindWaddr.vue";
 
 export default {
   components: {
     GetAllInfo,
     Redeem,
+    BindWaddr,
   },
   computed: mapState({
     coin: "coin",
@@ -121,7 +145,7 @@ export default {
     PBTlists: function (newLists) {
       this.$store.commit("setPBTlists", newLists);
     },
-
+    deep: true,
     PBXlists: function (newLists) {
       this.$store.commit("setPBXlists", newLists);
     },
@@ -196,6 +220,7 @@ export default {
         console.log(e.message);
       }
       loading.close();
+      this.diaNFT = false;
     },
 
     openNFT: async function (nft) {
