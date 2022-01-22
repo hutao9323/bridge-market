@@ -24,7 +24,7 @@ async function listenNFTEvents(ctr, list, commit) {
             const key = (evt.args.tokenId).toString()
             if (!(key in PBTList.owned)) {
                 const uri = bsc.ctrs.pbx.tokenURI(evt.args.tokenId)
-                const meta = await (await fetch(uri)).json()
+                const meta = await (await fetch(uri)).trim().json()
                 const info = {
                     id: parseInt(evt.args.tokenId),
                     uri: uri,
@@ -36,20 +36,35 @@ async function listenNFTEvents(ctr, list, commit) {
             } else {
                 commit("setPBXlists", list)
             }
-        } else if (evt.args.from == bsc.addr) { // transfer out PBXBind
-            commit("setPBXlists", list)
 
-            console.log("listen list1 =", list, evt, evt.args.tokenId)
+        } else if (evt.args.to == bsc.addr && evt.args.from == bsc.ctrs.pbmarket.to) {
+            //解绑pbx 与 pbt ，将pbx添加到PBXList ，删除 pbt关于该pbx的绑定信息 
+            console.log("listen retreat bind,list = ", list, evt, evt.args.tokenId)
 
-        } else if (evt.args.to == bsc.ctrs.pbmarket.to) { // on sale
+        } else if (evt.args.from == bsc.addr && evt.args.to == bsc.ctrs.pbmarket.to) {
+            //售卖nft，从owned到 mySale/selling 将pbt与pbx 在owned删除，添加到 selling 
+            //区分selling 与 mysell   owner “”/--self
+            console.log("listen onSale,list=", list, evt.args.tokenId)
+
+        } else if (evt.args.from == bsc.addr && evt.args.to == bsc.ctrs.pbx.to) {
             commit("setPBXlists", list)
 
             console.log("listen list2 =", list, evt, evt.args.tokenId)
 
-        } else if (evt.args.from == bsc.ctrs.pbmarket.to) { // bought or offsale
+            // } else if (evt.args.from == bsc.addr) { // transfer out PBXBind
+            //     commit("setPBXlists", list)
+
+            //     console.log("listen list1 =", list, evt, evt.args.tokenId)
+
+        } else if (evt.args.from == bsc.addr && evt.args.to == bsc.ctrs.pbmarket.to) { // on sale
             commit("setPBXlists", list)
 
-            console.log("listen list3 =", list, evt, evt.args.tokenId)
+            console.log("listen list2 =", list, evt, evt.args.tokenId)
+
+            // } else if (evt.args.from == bsc.ctrs.pbmarket.to) { // bought or offsale
+            //     commit("setPBXlists", list)
+
+            //     console.log("listen list3 =", list, evt, evt.args.tokenId)
         }
     })
 }
@@ -64,15 +79,16 @@ function pbInList(key, list) {
     return index
 }
 //获取绑定的 pbx 信息 
-async function getBindInfo(pbtId, pbxId) {
+async function getPBXInfo(pbtId, pbxId) {
     const xAddress = await bsc.ctrs.pbconnect.XAddressList(pbtId)
-    console.log("getBindInfo", pbtId, xAddress)
-
+    console.log("getPBXinfo", xAddress, xAddress[0].toString())
+    const depAddress = window.ChiaUtils.puzzle_hash_to_address(xAddress[1].toString(), "xcc")
+    const withAddress = window.ChiaUtils.puzzle_hash_to_address(xAddress[2].toString(), "xcc")
     const info = {
         id: pbxId,
         coinTypes: xAddress[0].toString(),
-        depositAddr: xAddress[1].toString(),
-        withdrawAddr: xAddress[2].toString()
+        depositAddr: depAddress.toString(),
+        withdrawAddr: withAddress.toString()
     }
     console.log("add bind pbx info", info);
     return info
@@ -113,13 +129,14 @@ async function listenEvents(commit) {
                 //遍历pbtnft上有没有pbxs
                 // const pbxsk = pbInList("pbxs", pbtnft)
                 if ("pbxs" in PBTList.owned[evt.args.pbtId]) { // 如果nft上已经有了pbxs属性
-                    const type = (Object.keys(PBTList.owned[evt.args.pbtId].pbxs)).includes(coinTy[0]) // 查找pbxs上是否已经有相同属性 查找Key值
-                    console.log("bind3 type", type, coinTy[0], )
+                    const type = pbInList(coinTy[0], pbtnft.pbxs)
+                    // const type = (Object.keys(PBTList.owned[evt.args.pbtId].pbxs)).includes(coinTy[0]) // 查找pbxs上是否已经有相同属性 查找Key值
+                    console.log("bind3 type", type, typeof coinTy[0], )
 
                     // 如果不存在该coinTy
                     if (!type) {
                         // 添加key值  
-                        const pbxinfo = await getBindInfo(evt.args.pbtId, evt.args.pbxId)
+                        const pbxinfo = await getPBXInfo(evt.args.pbtId, evt.args.pbxId)
                         const key = coinTy[0]
                         pbtnft['pbxs'][key.toString()] = pbxinfo
                         console.log("bind 4 pntnft ", PBTList.owned)
@@ -129,11 +146,11 @@ async function listenEvents(commit) {
                 } else {
                     // 不存在pbxs，添加 pbxs
                     const key = 'pbxs'
-                    const pbxinfo = await getBindInfo(evt.args.pbtId, evt.args.pbxId)
+                    const pbxinfo = await getPBXInfo(evt.args.pbtId, evt.args.pbxId)
                     if (pbxinfo.coinTypes != "") {
                         const xkey = pbxinfo.coinTypes.toString()
                         let pbxsInfo = {}
-                        pbxsInfo[xkey.toString()] = pbxinfo
+                        pbxsInfo[xkey] = pbxinfo
                         PBTList.owned[evt.args.pbtId][key] = pbxsInfo
                         console.log("bind 5", PBTList.owned)
                     }
@@ -168,8 +185,7 @@ async function listenEvents(commit) {
                 let pbtnft = PBTList.owned[evt.args.pbtId]
                 // if ('pbxs' in PBTList.owned[(evt.args.pbtId).toString()]) { // 如果nft上已经有了pbxs属性
                 if ("pbxs" in pbtnft) {
-
-                    // const type = pbInList(coinTy[0], PBXList.owned[evt.args.pbtId]) //cointypes or false
+                    //cointypes or false
                     if (coinTy[0] in pbtnft['pbxs']) { // 查看pbtnft.pbxs上是否有该type
                         // if (type) {
                         //如果pbx.length >1,删除该type,否则，删除pbxs
@@ -179,7 +195,6 @@ async function listenEvents(commit) {
                         } else {
                             delete pbtnft.pbxs['id']
                             delete pbtnft['pbxs']
-                            // console.log("re 22", pbtnft)
                             console.log("re2222 delete in pbtnft", PBTList.owned)
                         }
                         commit("setPBTlists", PBTList.owned)
@@ -268,21 +283,26 @@ async function getUserTokenList(pb, addr) {
             uri: uri,
             meta: meta,
         }
-        //获取 PBT 与 PBX 的绑定信息 pbx{coinTypes：{id：”“，coinTypes:"",depositAddr:"",withdrawAddr:""}}
+        //获取 PBT 与 PBX 的绑定信息 pbxs{coinTypes：{id：”“，coinTypes:"",depositAddr:"",withdrawAddr:""}}
         if (pb == bsc.ctrs.pbt) {
             const pbxs = await bsc.ctrs.pbconnect.PBXList(info.id)
             if (pbxs.length > 0) {
                 const bindlist = {}
                 const cointype = await bsc.ctrs.pbx.getCoinTypes(pbxs)
                 const coinTy = cointype.toString()
-                const xAddress = await bsc.ctrs.pbconnect.XAddressList(info.id)
-                const bindXInfo = {
-                    id: pbxs,
-                    coinTypes: xAddress[0].toString(),
-                    depositAddr: xAddress[1].toString(),
-                    withdrawAddr: xAddress[2].toString()
-                }
-                bindlist[coinTy] = bindXInfo
+                const bindXinfo = await getPBXInfo(idx.toNumber(), pbxs)
+                console.log("get pbx info = ", coinTy, typeof coinTy, pbxs, typeof pbxs)
+                // const xAddress = await bsc.ctrs.pbconnect.XAddressList(info.id)
+                // const prefix = 'xcc'
+                // const depAddress = window.ChiaUtils.puzzle_hash_to_address(xAddress[1].toString(), prefix)
+                // const withAddress = window.ChiaUtils.puzzle_hash_to_address(xAddress[2].toString(), prefix)
+                // const bindXInfo = {
+                //     id: pbxs,
+                //     coinTypes: xAddress[0].toString(),
+                //     depositAddr: depAddress.toString(),
+                //     withdrawAddr: withAddress.toString()
+                // }
+                bindlist[coinTy] = bindXinfo
                 info.pbxs = bindlist
             }
         }
