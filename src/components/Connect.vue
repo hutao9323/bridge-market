@@ -113,7 +113,9 @@
                 </el-col>
               </el-col>
             </el-col>
-            <el-col><BindWaddr /></el-col>
+            <el-col v-if="curNFT.meta['name'] == 'PlotBridge Xin'"
+              ><BindWaddr
+            /></el-col>
           </el-card>
         </el-dialog>
       </el-col>
