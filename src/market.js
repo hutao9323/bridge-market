@@ -110,13 +110,26 @@ async function getPBXInfo(pbtId, pbxId) {
     console.log("add bind pbx info", info);
     return info
 }
+
+async function ListenToWCoin(commit){
+    const ctr = bsc.ctrs.wxcc
+    const decimals = await ctr.decimals()
+    async function updateBalance(evt){
+        const balance = await ctr.balanceOf(bsc.addr)
+        console.log('wbalance', balance)
+        commit('setWBalance', ethers.utils.formatUnits(balance, decimals))
+    }
+    await updateBalance()
+    ctr.on(ctr.filters.Transfer, updateBalance)
+}
+
 //数组去重
 function unique(arr) {
     return Array.from(new Set(arr))
 }
 //监听 PBT/PBX list 以及 事件evt的发生
 async function listenEvents(commit) {
-
+    ListenToWCoin(commit)
     listenNFTEvents(bsc.ctrs.pbt, PBTList, function (newlist) {
         // newlist = PBTList.owned
         console.log("pbt=list", PBTList, newlist, bsc.ctrs.pbt)
@@ -420,6 +433,17 @@ async function mintPBT() {
         return text
     }
 }
+
+//TODO: this can be a more versatile function, supports multiple wcoins
+async function burnWXCC(amount){
+    const ctr = bsc.ctrs.wcoin
+    amount = ethers.utils.parseUnits(amount, await ctr.decimals())
+    // TODO: check balance
+    const receipt = await ctr.burn(amount)
+    console.log('burn receipt', receipt)
+    return receipt
+}
+
 async function waitEventDone(tx, done) {
     const ctr = pbwallet.erc721_contract(tx.to)
 
@@ -469,6 +493,7 @@ async function bindAddr(waddr, pbxId) {
 export default {
     connect: connect,
     bindTX: bindTX,
+    burnWXCC: burnWXCC,
     getMyTokenList: getMyTokenList,
     tokenAllowance: tokenAllowance,
     tokenApprove: tokenApprove,

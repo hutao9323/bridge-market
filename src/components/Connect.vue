@@ -77,6 +77,12 @@
                       withdrawAddr: {{ item.withdrawAddr }}
                     </span>
                   </dd>
+                  <dd v-if="item.withdrawAddr">
+                    WXCC Balance:
+                    <span>{{ WBalance }}</span>
+                    <el-input v-model="withdrawAmount"></el-input>
+                    <el-button @click="withdraw">Withdraw</el-button>
+                  </dd>
                   <!-- <dd v-if=""></dd> -->
                 </el-col>
                 <el-col v-if="name == 2">
@@ -142,6 +148,7 @@ export default {
     curNFT: "curNFT",
     PBTlists: "PBTlists",
     PBXlists: "PBXlists",
+    WBalance: "WBalance"
   }),
   watch: {
     PBTlists: function (newLists) {
@@ -160,6 +167,7 @@ export default {
       diaNFT: false,
       rAmount: 0,
       dragData: null,
+      withdrawAmount: 0,
       x_address: "",
     };
   },
@@ -224,7 +232,11 @@ export default {
       loading.close();
       this.diaNFT = false;
     },
-
+    withdraw: async function(){
+        const amount = this.withdrawAmount
+        console.log('to withdraw', amount)
+        await market.burnWXCC(amount)
+    },
     openNFT: async function (nft) {
       console.log("open NFT", nft);
       // const loading = this.$loading({

@@ -32,6 +32,7 @@ const store = new Vuex.Store({
         allow: -1,
         PBTlists: [],
         PBXlists: [],
+        WBalance: 0,
         redeemBalance: "0",
         redeemAllowance: "0"
     },
@@ -70,6 +71,9 @@ const store = new Vuex.Store({
         },
         setRedeemAllowance(state, allowance) {
             state.redeemAllowance = allowance
+        },
+        setWBalance(state, balance) {
+            state.WBalance = balance
         }
     }
 })
