@@ -3,14 +3,39 @@
     <el-col v-if="!baddr" class="user">
       <GetAllInfo />
     </el-col>
-    <el-col v-else class="user">
-      <el-col>
+    <el-container v-else>
+      <el-aside width="360px">
+        <MineNFT />
+      </el-aside>
+      <el-main>
+        <el-col class="userW">
+          <p>
+            <span>PBT Market</span>
+            <el-button @click="mintNFT" size="mini">Mint PBT</el-button>
+          </p>
+          <ul>
+            <li v-for="(nft, name) in PBTSellingLists" :key="name">
+              <el-button class="nftlist">
+                <i>#{{ nft.id }}</i>
+                <img v-if="nft.meta" :src="nft.meta.image" alt="img" />
+                <el-badge
+                  v-if="nft.pbxs"
+                  :value="Object.keys(nft.pbxs).length"
+                  class="item"
+                >
+                </el-badge>
+              </el-button>
+            </li>
+          </ul>
+        </el-col>
         <el-col>
-          <el-button
-            @click="load_lists"
-            class="el-icon-refresh refresh"
-            circle
-          ></el-button>
+          <el-col>
+            <el-button
+              @click="load_lists"
+              class="el-icon-refresh refresh"
+              circle
+            ></el-button>
+          </el-col>
           <el-col class="userW">
             <p>PBT</p>
             <ul>
@@ -50,82 +75,8 @@
             </ul>
           </el-col>
           <el-col><Redeem /> </el-col>
-        </el-col>
-        <el-dialog title="NFTinfo" :visible.sync="diaNFT" width="80%">
-          <el-card v-if="curNFT && curNFT.meta">
-            <el-col :span="7">
-              <img :src="curNFT.meta.image" :alt="curNFT.id" />
-              <p>id: {{ curNFT.id }}</p>
-            </el-col>
-            <el-col style="min-height: 300px" v-if="curNFT.pbxs" :span="13">
-              <h3>Bound:</h3>
-              <el-col v-for="(item, name) in curNFT.pbxs" :key="name">
-                <el-col v-if="name == 3">
-                  <dt>
-                    Chives(XCC):
-                    <el-button @click="unbind(item)" size="mini">
-                      Unbind
-                    </el-button>
-                  </dt>
-                  <dd v-if="item.depositAddr">
-                    deposit address : {{ item.depositAddr }}
-                  </dd>
-                  <dd v-if="item.withdrawAddr">
-                    <span
-                      v-if="String(item['withfrawAddr']).substr(2, 4) != '0000'"
-                    >
-                      withdrawAddr: {{ item.withdrawAddr }}
-                    </span>
-                  </dd>
-                  <dd v-if="item.withdrawAddr">
-                    WXCC Balance:
-                    <span>{{ WBalance }}</span>
-                    <el-input v-model="withdrawAmount"></el-input>
-                    <el-button @click="withdraw">Withdraw</el-button>
-                  </dd>
-                  <!-- <dd v-if=""></dd> -->
-                </el-col>
-                <el-col v-if="name == 2">
-                  <dt>
-                    HDDcoin(HDD)
-                    <el-button @click="unbind(item)" size="mini">
-                      Unbind
-                    </el-button>
-                  </dt>
-                  <dd v-if="item.depositAddr">
-                    deposit addr:{{ item.depositAddr }}
-                  </dd>
-                  <dd v-if="item.withdrawAddr">
-                    <span v-if="item.withfrawAddr.substr(2, 4) != '0000'">
-                      withdrawAddr: {{ item.withdrawAddr }}
-                    </span>
-                  </dd>
-                </el-col>
-                <el-col v-if="name == 1">
-                  <dt>
-                    Chia(XCH)
-                    <el-button @click="unbind(item)" size="mini"
-                      >Unbind</el-button
-                    >
-                  </dt>
-                  <dd v-if="item.depositAddr">
-                    deposit : {{ item.depositAddr }}
-                  </dd>
-                  <dd v-if="item.withdrawAddr">
-                    <span v-if="item.withfrawAddr.substr(2, 4) != '0000'">
-                      withdrawAddr: {{ item.withdrawAddr }}
-                    </span>
-                  </dd>
-                </el-col>
-              </el-col>
-            </el-col>
-            <el-col v-if="curNFT.meta['name'] == 'PlotBridge Xin'"
-              ><BindWaddr
-            /></el-col>
-          </el-card>
-        </el-dialog>
-      </el-col>
-    </el-col>
+        </el-col> </el-main
+    ></el-container>
   </el-col>
 </template>
 
@@ -135,12 +86,14 @@ import market from "../market";
 import GetAllInfo from "./GetAllInfo.vue";
 import Redeem from "./Redeem.vue";
 import BindWaddr from "./BindWaddr.vue";
+import MineNFT from "./MineNFT.vue";
 
 export default {
   components: {
     GetAllInfo,
     Redeem,
     BindWaddr,
+    MineNFT,
   },
   computed: mapState({
     coin: "coin",
@@ -148,7 +101,10 @@ export default {
     curNFT: "curNFT",
     PBTlists: "PBTlists",
     PBXlists: "PBXlists",
-    WBalance: "WBalance"
+    PBXSellingLists: "PBXSellingLists",
+    PBTSellingLists: "PBTSellingLists",
+    PBTMySaleLists: "PBTMySaleLists",
+    WBalance: "WBalance",
   }),
   watch: {
     PBTlists: function (newLists) {
@@ -232,10 +188,10 @@ export default {
       loading.close();
       this.diaNFT = false;
     },
-    withdraw: async function(){
-        const amount = this.withdrawAmount
-        console.log('to withdraw', amount)
-        await market.burnWXCC(amount)
+    withdraw: async function () {
+      const amount = this.withdrawAmount;
+      console.log("to withdraw", amount);
+      await market.burnWXCC(amount);
     },
     openNFT: async function (nft) {
       console.log("open NFT", nft);

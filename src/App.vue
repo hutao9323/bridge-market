@@ -3,20 +3,24 @@
     <el-container>
       <el-header>
         <el-row type="flex" justify="center" align="middle">
-          <el-col> logo version:1/21 2.0 </el-col>
-          <el-col :lg="10" :md="10" :sm="10" :xs="10"></el-col>
-          <!-- <el-col><SelectCoin /></el-col> -->
+          <el-col> logo version:2/10 2.0 </el-col>
+          <el-col v-if="baddr">
+            <el-button>Home</el-button>
+            <el-button>Bridge</el-button>
+            <el-button>Market</el-button>
+            <el-button>Doc</el-button>
+          </el-col>
+          <el-col>
+            <a href="#">联系方式</a>
+            <a href="#">discord</a>
+            <a href="#">电报</a>
+          </el-col>
           <el-col>
             <p v-if="baddr">
               {{ baddr.substr(0, 6) + "..." + baddr.substr(-4, 4) }}
             </p>
             <p v-else>未链接钱包</p>
           </el-col>
-          <el-col>
-            <a href="https://pbmarket.onrender.com" target="_blank"
-              ><el-button>market</el-button></a
-            ></el-col
-          >
         </el-row>
       </el-header>
       <el-main>
@@ -27,7 +31,14 @@
           </el-col>
         </el-row>
       </el-main>
-      <el-footer></el-footer>
+      <el-footer>
+        <el-col>
+          <p>Copyright©2021 Plot Network</p>
+          <p>本网站与pancake交易所无关</p>
+          <p>保留所有权利</p>
+          <p>所有第三方商标是其各自所有者的财产。</p>
+        </el-col>
+      </el-footer>
     </el-container>
   </div>
 </template>
