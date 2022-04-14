@@ -13,8 +13,8 @@
            <h2>Stake</h2>
          </el-col>
          <el-col id="stakeinput">
-           <p>WXCC质押：1000 WXCC</p> <!-- 显示已质押金额 -->
-           <span>WXCC已赚取：99 WXCC</span> <!-- 显示目前的收益 -->
+           <p>PBP质押：1000 PBP</p> <!-- 显示已质押金额 -->
+           <span>PBP已赚取：99 PBP</span> <!-- 显示目前的收益 -->
            <el-button @click="claim">claim</el-button>
          </el-col>
          <el-col id="stakeapprove"> 
@@ -30,7 +30,7 @@
     <el-dialog :visible.sync="dia_set_amount">
       <el-card>
         <h2>设置质押数量</h2>
-        <p>stake： <span>balance：100WXCC</span></p><!-- 显示钱包中WXCC余额 -->
+        <p>stake： <span>balance：100PBP</span></p><!-- 显示钱包中PBP余额 -->
         <el-input  
         v-model="s_amount"
         clearable></el-input>

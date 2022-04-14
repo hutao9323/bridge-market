@@ -15,7 +15,7 @@
       </el-col>
       <el-col
         id="menu"
-        :lg="{ span: 8, offset: 4 }"
+        :lg="{ span: 9, offset: 4 }"
         :md="{ span: 9, offset: 1 }"
         :sm="9"
         :xs="14"
@@ -227,7 +227,7 @@ export default {
 }
 #menu .el-menu--horizontal > .el-menu-item {
   height: 90px;
-  width: 20%;
+  width: 16.5%;
   font-size: 15px;
   font-weight: 700;
   padding: 15px 0px;
