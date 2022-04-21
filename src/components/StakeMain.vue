@@ -1,6 +1,6 @@
 <template>
   <el-col>
-    <p v-if="time_msg">质押奖励开始：{{ time_msg }}</p>
+    <p v-if="time_msg">{{$t('stake-reward')}}：{{ time_msg }}</p>
     <ul v-if="stakeTokens.length">
       <li v-for="item in this.stakeTokens" :key="item.pid">
         <el-col
